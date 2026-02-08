@@ -1,0 +1,56 @@
+<div class="login-bg">
+  <div class="login-wrap">
+    <mat-card class="login-card">
+      <!-- ✅ Logo centrado (sin título/subtítulo) -->
+      <div class="login-header centered">
+        <img
+          class="brand-logo large"
+          src="/assets/brand/corpchat-logo.png"
+          alt="CorpChat"
+          loading="eager"
+          onerror="this.style.display='none'"
+        />
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+        <mat-form-field appearance="outline" class="dark-field">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            formControlName="email"
+            autocomplete="username"
+            placeholder="tu.nombre@empresa.com"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="dark-field">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            type="password"
+            formControlName="password"
+            autocomplete="current-password"
+            placeholder="••••••••"
+          />
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          class="login-btn"
+          type="submit"
+          [disabled]="loading()"
+        >
+          <span class="btn-content">
+            <mat-icon class="btn-ic" aria-hidden="true">login</mat-icon>
+            {{ loading() ? 'Ingresando…' : 'Ingresar' }}
+          </span>
+        </button>
+
+        <div class="hint">
+          No compartas tus credenciales. Esta aplicación no solicita códigos por chat.
+        </div>
+      </form>
+    </mat-card>
+  </div>
+</div>

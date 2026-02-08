@@ -1,0 +1,27 @@
+<cc-page-shell title="Chats" [showLogout]="true" [onLogout]="logout.bind(this)">
+  <mat-progress-bar *ngIf="vm.loading()" mode="indeterminate"></mat-progress-bar>
+
+  <mat-nav-list>
+    <a
+      mat-list-item
+      *ngFor="let u of vm.users()"
+      (click)="openChat(u.id)"
+    >
+      <div class="row">
+        <div class="left">
+          <div class="name">{{ u.displayName }}</div>
+          <div class="meta">{{ u.email }}</div>
+        </div>
+
+        <span
+          class="badge"
+          [matBadge]="vm.unread()[u.id] || ''"
+          matBadgeColor="warn"
+          [matBadgeHidden]="!(vm.unread()[u.id] > 0)"
+        ></span>
+
+        <mat-icon>chevron_right</mat-icon>
+      </div>
+    </a>
+  </mat-nav-list>
+</cc-page-shell>

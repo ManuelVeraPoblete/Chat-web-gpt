@@ -1,0 +1,16 @@
+.dashboard {
+  display: grid;
+  grid-template-columns: 300px 1fr 350px;
+  height: calc(100vh - 64px);
+  gap: 12px;
+  padding: 12px;
+  background: #f3f5f8;
+}
+
+/** Responsive: en pantallas pequeñas baja a 1 columna */
+@media (max-width: 1100px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
