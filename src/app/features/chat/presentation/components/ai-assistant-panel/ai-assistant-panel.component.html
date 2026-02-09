@@ -1,0 +1,66 @@
+<mat-card class="panel">
+  <!-- Header -->
+  <div class="header">
+    <div class="title">
+      <div class="h1">Asistente IA</div>
+      <div class="h2">Asistente Corporativo</div>
+    </div>
+
+    <div class="actions">
+      <button mat-icon-button matTooltip="Refrescar" (click)="vm.refresh()">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Opciones">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <mat-progress-bar *ngIf="vm.loading()" mode="indeterminate"></mat-progress-bar>
+
+  <!-- Si no hay assistantUserId configurado -->
+  <div class="empty" *ngIf="!assistantUserId">
+    <mat-icon>warning</mat-icon>
+    <div class="empty-title">Falta assistantUserId</div>
+    <div class="empty-sub">
+      Configura <strong>environment.assistantUserId</strong> para habilitar el chat IA.
+    </div>
+  </div>
+
+  <!-- Conversación -->
+  <div class="messages" #messagesBox *ngIf="assistantUserId">
+    <div class="row" *ngFor="let m of vm.messages()">
+      <!-- role: user / assistant -->
+      <div class="bubble user" *ngIf="m.role === 'user'">
+        <div class="text">{{ m.text }}</div>
+        <div class="meta">{{ m.createdAt | date:'dd/MM HH:mm' }}</div>
+      </div>
+
+      <div class="bubble assistant" *ngIf="m.role === 'assistant'">
+        <div class="text">{{ m.text }}</div>
+        <div class="meta">{{ m.createdAt | date:'dd/MM HH:mm' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Composer -->
+  <div class="composer" *ngIf="assistantUserId">
+    <input
+      #assistantInput
+      class="input"
+      [value]="draft()"
+      (input)="draft.set(($any($event.target).value))"
+      placeholder="Escribe tu pregunta…"
+      aria-label="Escribe tu pregunta"
+    />
+
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="send()"
+      [disabled]="vm.sending()"
+    >
+      {{ vm.sending() ? 'Enviando…' : 'Enviar' }}
+    </button>
+  </div>
+</mat-card>

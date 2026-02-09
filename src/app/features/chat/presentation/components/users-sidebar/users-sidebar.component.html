@@ -1,0 +1,69 @@
+<div class="sidebar-card">
+  <div class="sidebar-header">
+    <div class="title">Chats</div>
+
+    <button mat-button class="refresh" (click)="vm.load()">
+      <mat-icon>refresh</mat-icon>
+      Actualizar
+    </button>
+  </div>
+
+  <mat-tab-group
+    class="tabs"
+    animationDuration="0ms"
+    (selectedIndexChange)="onTabIndexChange($event)"
+  >
+    <!-- TAB: Usuarios -->
+    <mat-tab label="Usuarios">
+      <div class="status-legend">
+        <div class="item"><span class="dot green"></span>Conectado</div>
+        <div class="item"><span class="dot yellow"></span>Pausa</div>
+        <div class="item"><span class="dot orange"></span>Almuerzo</div>
+        <div class="item"><span class="dot gray"></span>Desconectado</div>
+      </div>
+
+      <div class="loading" *ngIf="vm.loading()">
+        <mat-spinner diameter="26"></mat-spinner>
+        <span>Cargando usuarios…</span>
+      </div>
+
+      <mat-nav-list *ngIf="!vm.loading()">
+        <a
+          mat-list-item
+          class="user-row"
+          *ngFor="let u of vm.users(); trackBy: trackById"
+          (click)="selectUser(u)"
+          [class.selected]="isSelected(u)"
+        >
+          <mat-icon matListItemIcon class="avatar-ic">account_circle</mat-icon>
+
+          <div matListItemTitle class="name">
+            {{ u.displayName }}
+          </div>
+
+          <div matListItemLine class="meta" *ngIf="u.jobTitle || u.companySection">
+            {{ u.jobTitle || '' }} <span *ngIf="u.jobTitle && u.companySection">•</span>
+            {{ u.companySection || '' }}
+          </div>
+
+          <span
+            class="unread"
+            *ngIf="unreadCount(u) > 0"
+            [matBadge]="unreadCount(u)"
+            matBadgeColor="warn"
+            matBadgeSize="small"
+            matBadgeOverlap="false"
+          ></span>
+        </a>
+      </mat-nav-list>
+    </mat-tab>
+
+    <!-- TAB: Chat IA -->
+    <mat-tab label="Chat IA">
+      <div class="placeholder">
+        <mat-icon>smart_toy</mat-icon>
+        <p>Al seleccionar este tab, la IA se muestra (especialmente en pantallas pequeñas).</p>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

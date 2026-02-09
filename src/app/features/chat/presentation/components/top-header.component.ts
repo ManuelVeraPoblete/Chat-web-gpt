@@ -5,7 +5,7 @@ import { ChatShellFacade } from '../../application/facades/chat-shell.facade';
 import { WorkStatus } from '../../domain/value-objects/work-status.vo';
 
 /**
- * ✅ Header corporativo con estados laborales.
+ *Header corporativo con estados laborales.
  * Standalone: se importa desde ChatShellPage.
  */
 @Component({

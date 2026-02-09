@@ -15,10 +15,10 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideAnimations(),
 
-    // ✅ Router activo
+    //Router activo
     provideRouter(appRoutes),
 
-    // ✅ Config API
+    //Config API
     {
       provide: API_CONFIG,
       useValue: {
@@ -27,7 +27,7 @@ export const appConfig: ApplicationConfig = {
       },
     },
 
-    // ✅ HttpClient + interceptors
+    //HttpClient + interceptors
     provideHttpClient(withInterceptors([baseUrlInterceptor, authInterceptor, errorMappingInterceptor])),
   ],
 };

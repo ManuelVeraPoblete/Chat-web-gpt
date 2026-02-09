@@ -43,7 +43,7 @@
   padding: 18px 18px 14px 18px;
 
   background: #0b2a55;
-  box-shadow: none; /* ✅ sin sombra */
+  box-shadow: none; /*sin sombra */
 }
 
 /* Header centrado */
@@ -64,14 +64,14 @@
   height: 64px;
   object-fit: contain;
   border-radius: 14px;
-  box-shadow: none; /* ✅ sin sombra */
+  box-shadow: none; /*sin sombra */
 }
 
 .brand-logo.large {
   width: 90px;  /* 64 * 1.40 ≈ 90 */
   height: 90px; /* 64 * 1.40 ≈ 90 */
   border-radius: 18px;
-  box-shadow: none; /* ✅ sin sombra */
+  box-shadow: none; /*sin sombra */
 }
 
 /* Form */
@@ -88,7 +88,7 @@
   border-radius: 12px;
   font-weight: 800;
   letter-spacing: 0.2px;
-  box-shadow: none; /* ✅ sin sombra */
+  box-shadow: none; /*sin sombra */
 }
 
 .btn-content {
@@ -115,7 +115,7 @@
   background: rgba(255, 255, 255, 0.06);
   border-radius: 12px;
 
-  /* ✅ aseguramos sin sombras */
+  /*aseguramos sin sombras */
   box-shadow: none !important;
 }
 

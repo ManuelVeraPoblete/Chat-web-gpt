@@ -1,7 +1,30 @@
-<app-top-header></app-top-header>
+<cc-page-shell [title]="title" [showLogout]="false">
+  <div class="top-actions">
+    <button mat-button (click)="back()">
+      <mat-icon>arrow_back</mat-icon>
+      Volver
+    </button>
+  </div>
 
-<div class="dashboard">
-  <app-users-sidebar></app-users-sidebar>
-  <app-live-chat-panel></app-live-chat-panel>
-  <app-ai-assistant-panel></app-ai-assistant-panel>
-</div>
+  <div class="dashboard">
+    <cc-users-sidebar
+      [currentPeerId]="currentPeerId"
+      (userSelected)="onUserSelected($event)"
+      (tabChanged)="onTabChanged($event)"
+    ></cc-users-sidebar>
+
+    <!--Centro: chat con usuarios (se oculta en mobile si viewMode === 'ai') -->
+    <div class="center-col" [class.hide-on-small]="viewMode() === 'ai'">
+      <cc-live-chat-panel
+        [peerId]="currentPeerId"
+        [peerName]="currentPeerName"
+      ></cc-live-chat-panel>
+    </div>
+
+    <!--Derecha: IA siempre disponible en desktop,
+         y en pantallas pequeñas aparece SOLO cuando viewMode === 'ai' -->
+    <div class="right-col" [class.show-on-small]="viewMode() === 'ai'">
+      <cc-ai-assistant-panel [assistantUserId]="assistantUserId"></cc-ai-assistant-panel>
+    </div>
+  </div>
+</cc-page-shell>

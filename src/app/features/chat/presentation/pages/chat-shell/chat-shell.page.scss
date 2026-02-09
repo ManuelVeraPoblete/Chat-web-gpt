@@ -1,16 +1,66 @@
-.dashboard {
-  display: grid;
-  grid-template-columns: 300px 1fr 350px;
-  height: calc(100vh - 64px);
-  gap: 12px;
-  padding: 12px;
-  background: #f3f5f8;
+.top-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 8px;
 }
 
-/** Responsive: en pantallas pequeñas baja a 1 columna */
-@media (max-width: 1100px) {
+.dashboard {
+  display: grid;
+  grid-template-columns: 320px 1fr 360px;
+  gap: 12px;
+
+  height: calc(100vh - 170px);
+  min-height: 0;
+}
+
+.dashboard > * {
+  min-height: 0;
+}
+
+/* Column wrappers para controlar visibilidad en responsive */
+.center-col,
+.right-col {
+  min-height: 0;
+}
+
+/*Tablet: ocultamos columna derecha por defecto (como antes) */
+@media (max-width: 1200px) {
+  .dashboard {
+    grid-template-columns: 320px 1fr;
+  }
+
+  /* por defecto la IA no se muestra en pantallas pequeñas */
+  .right-col {
+    display: none;
+  }
+
+  /*Cuando el usuario selecciona "Chat IA", mostramos IA y ocultamos centro */
+  .center-col.hide-on-small {
+    display: none;
+  }
+
+  .right-col.show-on-small {
+    display: block;
+    grid-column: 2 / 3; /* ocupa la segunda columna */
+  }
+}
+
+/* Móvil: 1 columna, se alterna entre center y right */
+@media (max-width: 900px) {
   .dashboard {
     grid-template-columns: 1fr;
     height: auto;
+  }
+
+  .right-col {
+    display: none;
+  }
+
+  .center-col.hide-on-small {
+    display: none;
+  }
+
+  .right-col.show-on-small {
+    display: block;
   }
 }

@@ -30,7 +30,7 @@ export class SocketIoService {
 
     const url = this.config.socketUrl ?? this.config.apiBaseUrl;
 
-    // ✅ JWT: algunos backends lo leen en handshake.auth.token
+    //JWT: algunos backends lo leen en handshake.auth.token
     const token = this.auth.accessToken();
 
     this.socket = io(url, {

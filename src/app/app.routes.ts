@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/guards/auth.guard';
 
 export const appRoutes: Routes = [
-  // ✅ raíz: manda a /home (el guard enviará a /login si no hay sesión)
+  //raíz: manda a /home (el guard enviará a /login si no hay sesión)
   { path: '', pathMatch: 'full', redirectTo: 'home' },
 
   {
@@ -24,6 +24,6 @@ export const appRoutes: Routes = [
     ],
   },
 
-  // ✅ fallback
+  //fallback
   { path: '**', redirectTo: 'home' },
 ];

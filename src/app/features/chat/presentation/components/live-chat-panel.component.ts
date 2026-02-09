@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 /**
- * ✅ Panel de chat principal (columna central).
+ *Panel de chat principal (columna central).
  */
 @Component({
   selector: 'app-live-chat-panel',

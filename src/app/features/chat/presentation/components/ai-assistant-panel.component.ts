@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 /**
- * ✅ Panel Asistente IA (columna derecha).
+ *Panel Asistente IA (columna derecha).
  */
 @Component({
   selector: 'app-ai-assistant-panel',
