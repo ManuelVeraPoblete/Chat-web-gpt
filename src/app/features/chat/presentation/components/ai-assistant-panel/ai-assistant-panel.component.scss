@@ -1,110 +1,139 @@
 .panel {
   height: 100%;
-  min-height: 0;
-  border-radius: 14px;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-
+  border-radius: 16px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .header {
-  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 12px 8px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
-
-  .h1 { font-weight: 900; color: #0b2a55; font-size: 16px; }
-  .h2 { color: #64748b; font-weight: 700; font-size: 12px; margin-top: 2px; }
+  padding: 14px 14px 10px 14px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
 }
 
-.actions { display: flex; gap: 4px; }
-
-.empty {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: grid;
-  place-items: center;
-  padding: 18px;
-  text-align: center;
-  color: #475569;
-
-  mat-icon {
-    font-size: 42px;
-    width: 42px;
-    height: 42px;
-    opacity: 0.85;
-  }
-
-  .empty-title {
-    font-weight: 900;
-    color: #0b2a55;
-    margin-top: 8px;
-  }
-
-  .empty-sub {
-    font-weight: 600;
-    font-size: 12px;
-    opacity: 0.85;
-    max-width: 320px;
-  }
+.title {
+  min-width: 0;
 }
 
-.messages {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 12px;
-  background: #f8fafc;
+.h1 {
+  font-weight: 900;
+  color: #0b2a55;
+  font-size: 18px;
+  line-height: 22px;
 }
 
-.row { display: flex; margin: 8px 0; }
-
-.bubble {
-  max-width: 82%;
-  padding: 10px 12px;
-  border-radius: 16px;
+.subtitle-row {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin-top: 4px;
+}
+
+.h2 {
+  color: #64748b;
+  font-weight: 700;
+  font-size: 12px;
+  min-width: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
   gap: 6px;
 }
 
-.user {
-  margin-left: auto;
-  background: #0b2a55;
-  color: #fff;
+/* ✅ Chip Vista limpia */
+.chip-clean {
+  height: 28px;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  background: rgba(11, 42, 85, 0.08);
+  color: #0b2a55;
 }
 
-.assistant {
-  margin-right: auto;
+.chip-ic {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+}
+
+/* ✅ Mensajes con scroll vertical */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px;
+  background: #fbfcfe;
+}
+
+/* Cada row permite alinear a izquierda o derecha */
+.row {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+/**
+ * Burbuja base (IA a la izquierda)
+ */
+.bubble {
+  max-width: 78%;
+  padding: 10px 12px;
+  border-radius: 14px;
   background: #eef2f7;
   color: #0f172a;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
+/**
+ * ✅ Mensaje del usuario (derecha, verde)
+ */
+.bubble.mine {
+  margin-left: auto; /* ✅ derecha */
+  background: #1ea97c; /* ✅ verde */
+  color: #ffffff;
+}
+
+/* Texto */
+.text {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 18px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Metadata */
 .meta {
+  margin-top: 6px;
   font-size: 11px;
   opacity: 0.8;
-  text-align: right;
 }
 
+/* Footer input */
 .composer {
-  flex: 0 0 auto;
   display: flex;
   gap: 10px;
-  padding: 12px;
-  border-top: 1px solid rgba(148, 163, 184, 0.25);
-  background: #fff;
+  padding: 12px 14px;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  background: #ffffff;
+}
 
-  .input {
-    flex: 1;
-    height: 40px;
-    border-radius: 12px;
-    border: 1px solid rgba(148, 163, 184, 0.45);
-    padding: 0 12px;
-    outline: none;
-  }
+.input {
+  flex: 1;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+  font-weight: 700;
+}
+
+.input:focus {
+  border-color: rgba(11, 42, 85, 0.35);
+  box-shadow: 0 0 0 4px rgba(11, 42, 85, 0.08);
 }

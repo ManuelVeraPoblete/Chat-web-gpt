@@ -17,13 +17,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatChipsModule } from '@angular/material/chips'; // ✅ NUEVO
 
 import { LiveChatFacade } from '../../../application/live-chat.facade';
 
 /**
- *LiveChatPanelComponent (PRO)
- * - Columna central
- * -Expone focusInput() para UX pro (enfoque al seleccionar usuario)
+ * ✅ LiveChatPanelComponent (PRO)
+ * - Header con acciones
+ * - Menú 3 puntos: limpiar pantalla / recargar historial
+ * - ✅ NUEVO: Chip "Vista limpia" cuando la pantalla fue limpiada
  */
 @Component({
   standalone: true,
@@ -37,12 +41,16 @@ import { LiveChatFacade } from '../../../application/live-chat.facade';
     MatButtonModule,
     MatProgressBarModule,
     MatTooltipModule,
+    MatMenuModule,
+    MatSnackBarModule,
+    MatChipsModule, // ✅ NUEVO
   ],
   templateUrl: './live-chat-panel.component.html',
   styleUrl: './live-chat-panel.component.scss',
 })
 export class LiveChatPanelComponent implements OnChanges, AfterViewInit, OnDestroy {
   private readonly chat = inject(LiveChatFacade);
+  private readonly snack = inject(MatSnackBar);
 
   @Input() peerId: string = '';
   @Input() peerName: string = 'Usuario';
@@ -50,10 +58,6 @@ export class LiveChatPanelComponent implements OnChanges, AfterViewInit, OnDestr
   draft = signal('');
 
   @ViewChild('messagesBox') messagesBox?: ElementRef<HTMLDivElement>;
-
-  /**
-   *Ref del input del chat (para focus desde shell)
-   */
   @ViewChild('chatInput') chatInput?: ElementRef<HTMLInputElement>;
 
   vm = this.chat;
@@ -62,8 +66,6 @@ export class LiveChatPanelComponent implements OnChanges, AfterViewInit, OnDestr
     if (changes['peerId']) {
       await this.chat.openConversation(this.peerId);
       this.scrollToBottom();
-
-      //si ya hay peer seleccionado, enfocamos el input
       if (this.peerId) this.focusInput();
     }
   }
@@ -76,9 +78,6 @@ export class LiveChatPanelComponent implements OnChanges, AfterViewInit, OnDestr
     this.chat.stopPolling();
   }
 
-  /**
-   *Método público (pro)
-   */
   focusInput(): void {
     window.setTimeout(() => this.chatInput?.nativeElement?.focus(), 50);
   }
@@ -89,6 +88,21 @@ export class LiveChatPanelComponent implements OnChanges, AfterViewInit, OnDestr
     this.draft.set('');
     this.scrollToBottom();
     this.focusInput();
+  }
+
+  clearChatView(): void {
+    if (!this.peerId) return;
+
+    this.chat.clearView();
+    this.snack.open('Pantalla del chat limpiada (no se eliminó el historial).', 'OK', {
+      duration: 2500,
+    });
+  }
+
+  async reloadChat(): Promise<void> {
+    await this.chat.reload(true); // ✅ fuerza recarga y restaura historial
+    this.scrollToBottom();
+    this.snack.open('Historial recargado.', 'OK', { duration: 1800 });
   }
 
   private scrollToBottom(): void {

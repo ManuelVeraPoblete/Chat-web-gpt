@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, computed } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 
 import { MatTabsModule } from '@angular/material/tabs';
@@ -12,10 +12,10 @@ import { UsersSidebarFacade } from '../../../application/users-sidebar.facade';
 import type { AppUser } from '../../../domain/models/app-user.model';
 
 /**
- *UsersSidebarComponent (PRO)
- * - Presentacional: lista usuarios + unread
- * - NO navega: emite userSelected
- * -NUEVO: emite tabChanged (users | ai) para controlar visibilidad IA en responsive
+ * ✅ UsersSidebarComponent (PRO)
+ * - Tab "Usuarios": muestra usuarios REALES (excluye asistente IA)
+ * - Tab "Chat IA": muestra SOLO el Asistente IA como “usuario”
+ * - NO navega: emite eventos al contenedor (ChatShell)
  */
 @Component({
   standalone: true,
@@ -34,31 +34,60 @@ import type { AppUser } from '../../../domain/models/app-user.model';
   styleUrl: './users-sidebar.component.scss',
 })
 export class UsersSidebarComponent implements OnInit {
-  /**
-   *currentPeerId (opcional)
-   * - En /chat (shell) puede venir vacío.
-   * - En /chat/:userId se pasa para resaltar.
-   */
   @Input() currentPeerId: string = '';
 
   /**
-   *Evento PRO: el contenedor decide navegación.
+   * ✅ ID del “usuario” Asistente IA (desde environment)
    */
+  @Input() assistantUserId: string = '';
+
   @Output() userSelected = new EventEmitter<AppUser>();
 
   /**
-   *Evento PRO: el contenedor decide qué mostrar (users / ai)
+   * ✅ Tab-mode: el shell decide vista (users | ai)
    */
   @Output() tabChanged = new EventEmitter<'users' | 'ai'>();
 
   constructor(public readonly vm: UsersSidebarFacade) {}
+
+  /**
+   * ✅ Usuarios reales (sin IA)
+   */
+  readonly usersFiltered = computed(() => {
+    const users = this.vm.users();
+    const assistantId = this.assistantUserId;
+    if (!assistantId) return users;
+    return users.filter((u) => u.id !== assistantId);
+  });
+
+  /**
+   * ✅ “Usuario” asistente para el tab Chat IA
+   * - Si el backend lo trae en la lista, lo usamos
+   * - Si no, mostramos un placeholder decente
+   */
+  readonly assistantUser = computed<AppUser | null>(() => {
+    const assistantId = this.assistantUserId;
+    if (!assistantId) return null;
+
+    const found = this.vm.users().find((u) => u.id === assistantId);
+    if (found) return found;
+
+    // Fallback (por si el backend no devuelve el asistente dentro del listado)
+    return {
+      id: assistantId,
+      displayName: 'Asistente IA',
+      jobTitle: 'Asistente Corporativo',
+      companySection: '',
+      // Si tu AppUser tiene más campos obligatorios, los dejas en blanco/undefined.
+    } as unknown as AppUser;
+  });
 
   async ngOnInit(): Promise<void> {
     await this.vm.load();
   }
 
   /**
-   * Emite selección (no navega).
+   * ✅ Selección usuario real (no IA)
    */
   selectUser(u: AppUser): void {
     if (!u?.id) return;
@@ -66,7 +95,15 @@ export class UsersSidebarComponent implements OnInit {
   }
 
   /**
-   *Emitimos el modo según tab
+   * ✅ Selección del asistente IA (no navega a /chat/:id)
+   * Solo cambia el modo a IA para que el panel derecho aparezca y se enfoque.
+   */
+  openAssistant(): void {
+    this.tabChanged.emit('ai');
+  }
+
+  /**
+   * ✅ Emitimos modo según tab
    * index 0 = Usuarios, index 1 = Chat IA
    */
   onTabIndexChange(index: number): void {

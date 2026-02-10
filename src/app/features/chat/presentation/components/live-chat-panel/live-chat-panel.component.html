@@ -3,17 +3,33 @@
   <div class="header">
     <div class="title">
       <div class="h1">Chat en Vivo</div>
-      <div class="h2">Chat con {{ peerName }}</div>
+
+      <div class="subtitle-row">
+        <div class="h2">Chat con {{ peerName }}</div>
+
+        <!-- ✅ NUEVO: indicador cuando el usuario limpió la pantalla -->
+        <mat-chip *ngIf="vm.viewCleared()" class="chip-clean" aria-label="Vista limpia">
+          <mat-icon class="chip-ic" aria-hidden="true">delete_sweep</mat-icon>
+          Vista limpia
+        </mat-chip>
+      </div>
     </div>
 
     <div class="actions">
-      <button mat-icon-button matTooltip="Buscar">
+      <button mat-icon-button matTooltip="Buscar" aria-label="Buscar">
         <mat-icon>search</mat-icon>
       </button>
-      <button mat-icon-button matTooltip="Opciones">
+
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="chatMenu"
+        matTooltip="Opciones"
+        aria-label="Opciones"
+      >
         <mat-icon>more_vert</mat-icon>
       </button>
-      <button mat-icon-button matTooltip="Cerrar">
+
+      <button mat-icon-button matTooltip="Cerrar" aria-label="Cerrar">
         <mat-icon>close</mat-icon>
       </button>
     </div>
@@ -21,31 +37,18 @@
 
   <mat-progress-bar *ngIf="vm.loading()" mode="indeterminate"></mat-progress-bar>
 
-  <!-- Placeholder si no hay peer seleccionado -->
-  <div class="empty" *ngIf="!peerId">
-    <mat-icon>chat</mat-icon>
-    <div class="empty-title">Selecciona un usuario</div>
-    <div class="empty-sub">Elige un usuario en la columna izquierda para iniciar conversación.</div>
-  </div>
-
-  <!-- Mensajes -->
-  <div class="messages" #messagesBox *ngIf="peerId">
+  <!-- Messages -->
+  <div class="messages" #messagesBox>
     <div class="row" *ngFor="let m of vm.messages()">
-      <!-- Sin myUserId aún en shell: tratamos “mío” cuando senderId != peerId -->
-      <div class="bubble mine" *ngIf="m.senderId !== peerId">
+      <div class="bubble" [class.mine]="m.role === 'user'">
         <div class="text">{{ m.text }}</div>
-        <div class="meta">{{ m.createdAt | date:'dd/MM HH:mm' }}</div>
-      </div>
-
-      <div class="bubble other" *ngIf="m.senderId === peerId">
-        <div class="text">{{ m.text }}</div>
-        <div class="meta">{{ m.createdAt | date:'dd/MM HH:mm' }}</div>
+        <div class="meta">{{ m.createdAt | date: 'dd/MM HH:mm' }}</div>
       </div>
     </div>
   </div>
 
   <!-- Composer -->
-  <div class="composer" *ngIf="peerId">
+  <div class="composer">
     <input
       #chatInput
       class="input"
@@ -55,29 +58,21 @@
       aria-label="Escribe un mensaje"
     />
 
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="send()"
-      [disabled]="vm.sending()"
-    >
+    <button mat-raised-button color="primary" (click)="send()" [disabled]="vm.sending()">
       {{ vm.sending() ? 'Enviando…' : 'Enviar' }}
     </button>
   </div>
-
-  <!-- Status bar -->
-  <div class="statusbar" *ngIf="peerId">
-    <div class="status">
-      <span class="dot green"></span>
-      Estado actual: <strong>Conectado</strong>
-    </div>
-
-    <div class="status-actions">
-      <button mat-stroked-button>Nuevo chat</button>
-      <button mat-stroked-button>
-        <mat-icon class="ic">call</mat-icon>
-        Llamada
-      </button>
-    </div>
-  </div>
 </mat-card>
+
+<!-- Menu -->
+<mat-menu #chatMenu="matMenu">
+  <button mat-menu-item (click)="clearChatView()">
+    <mat-icon>delete_sweep</mat-icon>
+    <span>Limpiar pantalla</span>
+  </button>
+
+  <button mat-menu-item (click)="reloadChat()">
+    <mat-icon>refresh</mat-icon>
+    <span>Recargar historial</span>
+  </button>
+</mat-menu>

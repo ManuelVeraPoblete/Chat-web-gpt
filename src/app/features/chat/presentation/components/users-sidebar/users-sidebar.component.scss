@@ -1,3 +1,5 @@
+/* src/app/features/chat/presentation/components/users-sidebar/users-sidebar.component.scss */
+
 .sidebar-card {
   height: 100%;
   background: #ffffff;
@@ -6,7 +8,7 @@
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden; /* ✅ blindaje horizontal */
 }
 
 .sidebar-header {
@@ -30,6 +32,38 @@
   flex: 1;
   overflow: hidden;
 }
+
+/* =========================================================
+   ✅ FIX: evitar scroll horizontal en tabs Material
+   ========================================================= */
+
+:host ::ng-deep .mat-mdc-tab-body-content {
+  padding: 8px 0;
+  overflow-x: hidden !important;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+:host ::ng-deep .mat-mdc-tab-body-content mat-nav-list {
+  overflow-x: hidden !important;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+:host ::ng-deep .mat-mdc-tab-body-content .mdc-list-item,
+:host ::ng-deep .mat-mdc-tab-body-content .mat-mdc-list-item {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+:host ::ng-deep .mat-mdc-tab-body-content * {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   ✅ Estados (legend)
+   ========================================================= */
 
 .status-legend {
   display: grid;
@@ -66,6 +100,10 @@
   color: #475569;
   font-weight: 600;
 }
+
+/* =========================================================
+   ✅ Usuarios (tab Usuarios)
+   ========================================================= */
 
 .user-row {
   border-radius: 12px;
@@ -108,5 +146,126 @@
   p {
     margin-top: 10px;
     font-weight: 600;
+  }
+}
+
+/* =========================================================
+   ✅ Chat IA (tab Chat IA): item premium + alto correcto
+   ========================================================= */
+
+/**
+ * ✅ Card del asistente IA
+ * - Ancho OK sin scroll horizontal
+ * - ✅ Alto flexible (no corta la 2da línea)
+ * - Badge absoluto (no empuja layout)
+ */
+.ai-row {
+  width: calc(100% - 20px);
+  max-width: 100%;
+  margin: 10px auto;
+  box-sizing: border-box;
+
+  border-radius: 999px;
+
+  /* ✅ más alto para 2 líneas */
+  padding: 12px 14px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(11, 42, 85, 0.06),
+    rgba(11, 42, 85, 0.02)
+  );
+  border: 1px solid rgba(11, 42, 85, 0.10);
+
+  overflow: hidden;
+  position: relative;
+
+  transition: transform 120ms ease, box-shadow 120ms ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.10);
+  }
+}
+
+/* ✅ Fuerza al list-item IA a crecer (Material suele fijar altura) */
+:host ::ng-deep .ai-row.mat-mdc-list-item,
+:host ::ng-deep .ai-row.mdc-list-item {
+  height: auto !important;
+  min-height: 64px !important; /* ✅ suficiente para 2 líneas */
+  align-items: flex-start !important; /* evita que centre y corte */
+}
+
+/* ✅ Ajuste del contenedor interno del list item */
+:host ::ng-deep .ai-row .mdc-list-item__content {
+  padding: 0 !important; /* usamos nuestro padding en .ai-row */
+  align-self: stretch;
+}
+
+/* ✅ Icono */
+.ai-ic {
+  color: #0b2a55;
+}
+
+/* ✅ Nombre y meta: no forzar ancho, pero permitir ver contenido */
+.ai-row .name {
+  font-weight: 900;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ✅ Meta (Online…) que NO se corte */
+.ai-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  min-width: 0;
+  line-height: 18px;
+  padding-top: 2px;
+
+  /* Importante: no truncar para que se vea completo */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.online-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #1ea97c;
+  box-shadow: 0 0 0 3px rgba(30, 169, 124, 0.18);
+  flex: 0 0 auto;
+}
+
+/* ✅ Badge "IA": no empuja layout y no tapa la 2da línea */
+:host ::ng-deep .ai-row .mat-badge-content {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  transform: none;
+
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  border-radius: 999px;
+  padding: 0 8px;
+}
+
+/* =========================================================
+   ✅ Responsive
+   ========================================================= */
+
+@media (max-width: 420px) {
+  .ai-row {
+    width: calc(100% - 12px);
+    padding: 12px 12px;
+  }
+
+  :host ::ng-deep .ai-row.mat-mdc-list-item,
+  :host ::ng-deep .ai-row.mdc-list-item {
+    min-height: 68px !important;
   }
 }

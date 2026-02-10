@@ -185,3 +185,28 @@
     margin-right: 6px;
   }
 }
+
+.subtitle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.chip-clean {
+  height: 28px;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+
+  /* azul corporativo suave */
+  background: rgba(11, 42, 85, 0.08);
+  color: #0b2a55;
+}
+
+.chip-ic {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+}

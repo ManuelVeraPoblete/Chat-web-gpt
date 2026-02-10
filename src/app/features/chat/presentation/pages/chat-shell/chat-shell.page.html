@@ -1,6 +1,10 @@
-<cc-page-shell [title]="title" [showLogout]="false">
+<!-- ✅ Barra superior corporativa -->
+<cc-top-app-bar [appName]="'CorpChat'"></cc-top-app-bar>
+
+<!-- Contenido principal -->
+<main class="page-content">
   <div class="top-actions">
-    <button mat-button (click)="back()">
+    <button mat-button (click)="back()" aria-label="Volver">
       <mat-icon>arrow_back</mat-icon>
       Volver
     </button>
@@ -8,12 +12,12 @@
 
   <div class="dashboard">
     <cc-users-sidebar
-      [currentPeerId]="currentPeerId"
-      (userSelected)="onUserSelected($event)"
-      (tabChanged)="onTabChanged($event)"
-    ></cc-users-sidebar>
+  [currentPeerId]="currentPeerId"
+  [assistantUserId]="assistantUserId"
+  (userSelected)="onUserSelected($event)"
+  (tabChanged)="onTabChanged($event)"
+></cc-users-sidebar>
 
-    <!--Centro: chat con usuarios (se oculta en mobile si viewMode === 'ai') -->
     <div class="center-col" [class.hide-on-small]="viewMode() === 'ai'">
       <cc-live-chat-panel
         [peerId]="currentPeerId"
@@ -21,10 +25,8 @@
       ></cc-live-chat-panel>
     </div>
 
-    <!--Derecha: IA siempre disponible en desktop,
-         y en pantallas pequeñas aparece SOLO cuando viewMode === 'ai' -->
     <div class="right-col" [class.show-on-small]="viewMode() === 'ai'">
       <cc-ai-assistant-panel [assistantUserId]="assistantUserId"></cc-ai-assistant-panel>
     </div>
   </div>
-</cc-page-shell>
+</main>

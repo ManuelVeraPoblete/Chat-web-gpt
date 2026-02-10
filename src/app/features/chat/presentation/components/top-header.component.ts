@@ -14,7 +14,7 @@ import { WorkStatus } from '../../domain/value-objects/work-status.vo';
   imports: [CommonModule],
   template: `
     <header class="header">
-      <div class="logo">ConnectHub</div>
+      <div class="logo">Corp Chat</div>
 
       <div class="actions">
         <button class="btn primary" (click)="facade.connect()">Iniciar conexión</button>

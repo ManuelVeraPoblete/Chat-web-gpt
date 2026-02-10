@@ -1,52 +1,68 @@
+.page-content {
+  padding: 16px;
+}
+
+/* Botón volver */
 .top-actions {
   display: flex;
   justify-content: flex-start;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
+/**
+ * ✅ Dashboard 3 columnas (PRO)
+ * - Izquierda: fijo (sidebar)
+ * - Centro y derecha: mismo ancho (1fr + 1fr)
+ *
+ * Resultado:
+ * - "Chat en Vivo" y "Asistente IA" quedan idénticos en ancho.
+ */
 .dashboard {
   display: grid;
-  grid-template-columns: 320px 1fr 360px;
+  grid-template-columns: 320px 1fr 1fr; /* ✅ CAMBIO CLAVE */
   gap: 12px;
 
-  height: calc(100vh - 170px);
+  height: calc(100vh - 140px);
   min-height: 0;
 }
 
 .dashboard > * {
   min-height: 0;
+  min-width: 0; /* ✅ importante para que el contenido no fuerce el grid */
 }
 
-/* Column wrappers para controlar visibilidad en responsive */
 .center-col,
 .right-col {
   min-height: 0;
+  min-width: 0;
 }
 
-/*Tablet: ocultamos columna derecha por defecto (como antes) */
+/* ✅ Tablet */
 @media (max-width: 1200px) {
   .dashboard {
     grid-template-columns: 320px 1fr;
   }
 
-  /* por defecto la IA no se muestra en pantallas pequeñas */
   .right-col {
     display: none;
   }
 
-  /*Cuando el usuario selecciona "Chat IA", mostramos IA y ocultamos centro */
   .center-col.hide-on-small {
     display: none;
   }
 
   .right-col.show-on-small {
     display: block;
-    grid-column: 2 / 3; /* ocupa la segunda columna */
+    grid-column: 2 / 3;
   }
 }
 
-/* Móvil: 1 columna, se alterna entre center y right */
+/* ✅ Móvil */
 @media (max-width: 900px) {
+  .page-content {
+    padding: 12px;
+  }
+
   .dashboard {
     grid-template-columns: 1fr;
     height: auto;

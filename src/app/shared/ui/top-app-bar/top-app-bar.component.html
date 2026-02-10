@@ -1,0 +1,45 @@
+<mat-toolbar class="topbar" role="banner" aria-label="Barra superior de la aplicación">
+  <!-- Brand -->
+  <div class="brand" aria-label="Marca de la aplicación">
+    <div class="logo" aria-hidden="true"></div>
+    <span class="name">{{ appName }}</span>
+  </div>
+
+  <span class="spacer"></span>
+
+  <!-- Estados (solo UI) -->
+  <div class="status" aria-label="Estados laborales">
+    <button mat-raised-button class="status-btn ok" aria-label="Iniciar conexión">
+      Iniciar conexión
+    </button>
+
+    <button mat-raised-button class="status-btn neutral" aria-label="Pausa">
+      Pausa
+    </button>
+
+    <button mat-raised-button class="status-btn neutral" aria-label="Almuerzo">
+      Almuerzo
+    </button>
+
+    <button mat-raised-button class="status-btn danger" aria-label="Desconectar">
+      Desconectar
+    </button>
+  </div>
+
+  <span class="spacer"></span>
+
+  <!-- Iconos derecha -->
+  <div class="right" *ngIf="showRightIcons" aria-label="Acciones">
+    <button mat-icon-button aria-label="Notificaciones">
+      <mat-icon>notifications</mat-icon>
+    </button>
+
+    <button mat-icon-button aria-label="Mensajes">
+      <mat-icon>mail</mat-icon>
+    </button>
+
+    <button mat-icon-button aria-label="Perfil">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>
