@@ -1,17 +1,18 @@
-/**
- *Panel central con altura controlada
- * - El panel NO debe crecer con el historial
- * - La zona de mensajes es la que scrollea
- */
+/* src/app/features/chat/presentation/components/live-chat-panel/live-chat-panel.component.scss */
+
 .panel {
   height: 100%;
-  min-height: 0; /*clave para grid/flex */
+  min-height: 0;
   border-radius: 14px;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+
+  border: 2px solid #000; /* ✅ marco negro */
 
   display: flex;
   flex-direction: column;
-  overflow: hidden; /*evita que se salga */
+  overflow: hidden;
+
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
 }
 
 .header {
@@ -21,6 +22,8 @@
   justify-content: space-between;
   padding: 12px 12px 8px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+
+  background: rgba(255, 255, 255, 0.92);
 
   .h1 {
     font-weight: 900;
@@ -41,55 +44,32 @@
   gap: 4px;
 }
 
-.empty {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: grid;
-  place-items: center;
-  padding: 18px;
-  text-align: center;
-  color: #475569;
-
-  mat-icon {
-    font-size: 42px;
-    width: 42px;
-    height: 42px;
-    opacity: 0.85;
-  }
-
-  .empty-title {
-    font-weight: 900;
-    color: #0b2a55;
-    margin-top: 8px;
-  }
-
-  .empty-sub {
-    font-weight: 600;
-    font-size: 12px;
-    opacity: 0.85;
-    max-width: 320px;
-  }
-}
-
-/**
- *ESTA es la caja que debe scrollear
- */
 .messages {
   flex: 1 1 auto;
-  min-height: 0;           /*clave */
-  overflow-y: auto;        /*scroll interno */
+  min-height: 0;
+  overflow-y: auto;
   overflow-x: hidden;
   padding: 12px;
-  background: #f8fafc;
+
+  background-image:
+    linear-gradient(
+      rgba(248, 250, 252, 0.88),
+      rgba(248, 250, 252, 0.88)
+    ),
+    url('/assets/bg/corpchat-fondochat.png');
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-/* (Opcional pro) scrollbar más discreto */
-.messages::-webkit-scrollbar {
-  width: 10px;
-}
-.messages::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.25);
-  border-radius: 999px;
+.composer {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .row {
@@ -116,97 +96,4 @@
   margin-right: auto;
   background: #eef2f7;
   color: #0f172a;
-}
-
-.meta {
-  font-size: 11px;
-  opacity: 0.8;
-  text-align: right;
-}
-
-/**
- *Composer y statusbar NO deben empujar el panel fuera
- * Se quedan fijos abajo
- */
-.composer {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 10px;
-  padding: 12px;
-  border-top: 1px solid rgba(148, 163, 184, 0.25);
-  background: #fff;
-
-  .input {
-    flex: 1;
-    height: 40px;
-    border-radius: 12px;
-    border: 1px solid rgba(148, 163, 184, 0.45);
-    padding: 0 12px;
-    outline: none;
-  }
-}
-
-.statusbar {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border-top: 1px solid rgba(148, 163, 184, 0.25);
-  background: #fff;
-
-  .status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #334155;
-    font-weight: 700;
-  }
-
-  .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-  .green {
-    background: #1ea97c;
-  }
-
-  .status-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .ic {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    margin-right: 6px;
-  }
-}
-
-.subtitle-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.chip-clean {
-  height: 28px;
-  border-radius: 999px;
-  font-weight: 800;
-  letter-spacing: 0.2px;
-
-  /* azul corporativo suave */
-  background: rgba(11, 42, 85, 0.08);
-  color: #0b2a55;
-}
-
-.chip-ic {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  margin-right: 6px;
 }

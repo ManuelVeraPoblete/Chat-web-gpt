@@ -1,6 +1,12 @@
+// src/app/features/chat/domain/value-objects/work-status.vo.ts
+
 /**
- * Representa los estados laborales del usuario.
- * Se usa en frontend y backend para consistencia.
+ * ✅ WorkStatus
+ * Estados laborales alineados con el backend (/workday).
+ *
+ * Importante:
+ * - ENDED se usa como "desconectado" dentro del mismo día (puede reconectar).
+ * - NOT_STARTED: aún no registra entrada.
  */
 export enum WorkStatus {
   NOT_STARTED = 'NOT_STARTED',

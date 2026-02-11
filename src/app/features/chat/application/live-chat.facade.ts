@@ -22,12 +22,6 @@ export class LiveChatFacade {
   private readonly loadingSig = signal(false);
   private readonly sendingSig = signal(false);
 
-  /**
-   * ✅ Si está en true:
-   * - polling NO repone historial
-   * - send() NO debe reactivar la vista (solo agrega el nuevo mensaje)
-   * - solo reload(true) restaura historial
-   */
   private readonly viewClearedSig = signal(false);
 
   readonly peerId = computed(() => this.peerIdSig());
@@ -43,39 +37,21 @@ export class LiveChatFacade {
 
   constructor(private readonly chatRepo: ChatRepositoryHttp) {}
 
-  /**
-   * ✅ Abre conversación:
-   * - Cambia peer
-   * - Permite carga normal (viewCleared=false)
-   * - Carga historial (forzado)
-   */
   async openConversation(peerId: string): Promise<void> {
     if (!peerId) {
-      this.stopPolling();
-      this.peerIdSig.set('');
-      this.conversationIdSig.set(null);
-      this.messagesSig.set([]);
-      this.viewClearedSig.set(false);
+      this.resetState();
       return;
     }
 
     if (this.peerIdSig() === peerId) return;
 
     this.peerIdSig.set(peerId);
-
-    // ✅ Al cambiar de conversación, volvemos al modo normal (historial visible)
     this.viewClearedSig.set(false);
 
     await this.reload(true);
     this.startPolling();
   }
 
-  /**
-   * ✅ Envía mensaje
-   * IMPORTANTE:
-   * - Si viewCleared=true, NO reponemos historial.
-   * - Solo agregamos el mensaje enviado a la vista actual.
-   */
   async send(text: string): Promise<void> {
     const peerId = this.peerIdSig();
     const clean = text.trim();
@@ -85,27 +61,17 @@ export class LiveChatFacade {
     try {
       const sent = await this.chatRepo.sendText(peerId, clean);
 
-      // ✅ CLAVE:
-      // NO cambiamos viewClearedSig aquí.
-      // Si el usuario limpió la pantalla, se mantiene limpia, solo con nuevos mensajes.
+      // ✅ No reactivamos historial si estaba limpio
       this.messagesSig.set([...this.messagesSig(), sent]);
     } finally {
       this.sendingSig.set(false);
     }
   }
 
-  /**
-   * ✅ Recarga historial
-   * @param force
-   * - false: respeta viewCleared (polling NO repone)
-   * - true : fuerza recarga y desactiva viewCleared (restaura historial completo)
-   */
   async reload(force = false): Promise<void> {
     const peerId = this.peerIdSig();
     if (!peerId) return;
 
-    // ✅ Si la vista está limpia por decisión del usuario,
-    // no recargamos automáticamente (a menos que sea forzado).
     if (!force && this.viewClearedSig()) return;
 
     this.loadingSig.set(true);
@@ -114,22 +80,15 @@ export class LiveChatFacade {
 
       this.conversationIdSig.set(conversationId);
 
-      // Backend suele venir newest-first -> invertimos para render natural
       const ordered = [...messages].reverse();
       this.messagesSig.set(ordered);
 
-      // ✅ Solo cuando es recarga forzada restauramos comportamiento normal
       if (force) this.viewClearedSig.set(false);
     } finally {
       this.loadingSig.set(false);
     }
   }
 
-  /**
-   * ✅ Limpia SOLO la pantalla (UI)
-   * - No borra backend
-   * - Bloquea cualquier repoblación automática
-   */
   clearView(): void {
     this.messagesSig.set([]);
     this.viewClearedSig.set(true);
@@ -138,7 +97,6 @@ export class LiveChatFacade {
   private startPolling(): void {
     this.stopPolling();
     this.pollTimer = window.setInterval(() => {
-      // ✅ polling NO fuerza
       this.reload(false);
     }, 4000);
   }
@@ -148,5 +106,18 @@ export class LiveChatFacade {
       window.clearInterval(this.pollTimer);
       this.pollTimer = undefined;
     }
+  }
+
+  /**
+   * ✅ NUEVO: Resetea estado en memoria (para 401/logout)
+   */
+  resetState(): void {
+    this.stopPolling();
+    this.peerIdSig.set('');
+    this.conversationIdSig.set(null);
+    this.messagesSig.set([]);
+    this.loadingSig.set(false);
+    this.sendingSig.set(false);
+    this.viewClearedSig.set(false);
   }
 }

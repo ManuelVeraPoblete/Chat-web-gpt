@@ -1,0 +1,71 @@
+/* src/app/features/chat/presentation/components/work-status-panel/work-status-panel.component.scss */
+
+.panel {
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid #000; /* ✅ marco negro */
+  border-radius: 16px;
+  padding: 14px;
+  backdrop-filter: blur(6px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  .title {
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    color: #fff;
+  }
+
+  .pill {
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.10);
+    color: #fff;
+  }
+}
+
+.actions {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.action-btn {
+  width: 100%;
+  justify-content: flex-start;
+  border-radius: 12px;
+  font-weight: 700;
+
+  &.danger {
+    background: #d9534f !important;
+    color: #fff !important;
+  }
+
+  &.ghost {
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  }
+}
+
+.hint {
+  margin-top: 12px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.78);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.35);
+  }
+}

@@ -9,6 +9,7 @@ import {
   ViewChild,
   inject,
   signal,
+  computed,
 } from '@angular/core';
 import { NgFor, NgIf, DatePipe } from '@angular/common';
 
@@ -19,15 +20,18 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatChipsModule } from '@angular/material/chips'; // ✅ NUEVO
+import { MatChipsModule } from '@angular/material/chips';
 
 import { LiveChatFacade } from '../../../application/live-chat.facade';
+import { ChatShellFacade } from '../../../application/facades/chat-shell.facade';
+import { WorkStatus } from '../../../domain/value-objects/work-status.vo';
 
 /**
  * ✅ LiveChatPanelComponent (PRO)
  * - Header con acciones
  * - Menú 3 puntos: limpiar pantalla / recargar historial
- * - ✅ NUEVO: Chip "Vista limpia" cuando la pantalla fue limpiada
+ * - Chip "Vista limpia"
+ * - ✅ NUEVO: Deshabilita envío cuando NO está ACTIVE (pausa/almuerzo/desconectado/no iniciado)
  */
 @Component({
   standalone: true,
@@ -43,13 +47,14 @@ import { LiveChatFacade } from '../../../application/live-chat.facade';
     MatTooltipModule,
     MatMenuModule,
     MatSnackBarModule,
-    MatChipsModule, // ✅ NUEVO
+    MatChipsModule,
   ],
   templateUrl: './live-chat-panel.component.html',
   styleUrl: './live-chat-panel.component.scss',
 })
 export class LiveChatPanelComponent implements OnChanges, AfterViewInit, OnDestroy {
   private readonly chat = inject(LiveChatFacade);
+  private readonly shell = inject(ChatShellFacade);
   private readonly snack = inject(MatSnackBar);
 
   @Input() peerId: string = '';
@@ -61,6 +66,15 @@ export class LiveChatPanelComponent implements OnChanges, AfterViewInit, OnDestr
   @ViewChild('chatInput') chatInput?: ElementRef<HTMLInputElement>;
 
   vm = this.chat;
+
+  /**
+   * ✅ Envío habilitado SOLO si el estado laboral es ACTIVE.
+   * Nota: se valida robusto (enum o string), para soportar PAUSED/LUNCH si existen.
+   */
+  readonly canSend = computed(() => {
+    const st = this.shell.status();
+    return st === WorkStatus.ACTIVE || String(st) === 'ACTIVE';
+  });
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes['peerId']) {
@@ -79,11 +93,21 @@ export class LiveChatPanelComponent implements OnChanges, AfterViewInit, OnDestr
   }
 
   focusInput(): void {
+    // ✅ No enfocar si está deshabilitado para no dar UX rara
+    if (!this.canSend()) return;
     window.setTimeout(() => this.chatInput?.nativeElement?.focus(), 50);
   }
 
   async send(): Promise<void> {
-    const text = this.draft();
+    // ✅ Guard adicional (aunque el botón esté disabled)
+    if (!this.canSend()) {
+      this.snack.open('No puedes enviar mensajes en Pausa/Almuerzo/Desconectado.', 'OK', { duration: 2500 });
+      return;
+    }
+
+    const text = this.draft().trim();
+    if (!text) return;
+
     await this.chat.send(text);
     this.draft.set('');
     this.scrollToBottom();
@@ -100,7 +124,7 @@ export class LiveChatPanelComponent implements OnChanges, AfterViewInit, OnDestr
   }
 
   async reloadChat(): Promise<void> {
-    await this.chat.reload(true); // ✅ fuerza recarga y restaura historial
+    await this.chat.reload(true);
     this.scrollToBottom();
     this.snack.open('Historial recargado.', 'OK', { duration: 1800 });
   }

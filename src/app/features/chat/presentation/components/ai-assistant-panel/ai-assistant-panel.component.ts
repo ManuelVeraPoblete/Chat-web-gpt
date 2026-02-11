@@ -1,5 +1,3 @@
-
-
 import {
   AfterViewInit,
   Component,
@@ -11,6 +9,7 @@ import {
   ViewChild,
   inject,
   signal,
+  computed,
 } from '@angular/core';
 import { NgFor, NgIf, DatePipe } from '@angular/common';
 
@@ -24,17 +23,13 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 
 import { AiAssistantFacade } from '../../../application/ai-assistant.facade';
+import { ChatShellFacade } from '../../../application/facades/chat-shell.facade';
+import { WorkStatus } from '../../../domain/value-objects/work-status.vo';
 import type { ChatMessage } from '../../../domain/models/chat-message.model';
 
 /**
- * ✅ AiAssistantPanelComponent (PRO)
- * - Menú (⋮): limpiar pantalla / recargar historial
- * - Chip "Vista limpia"
- * - Burbujas: usuario derecha/verde, IA izquierda/claro
- *
- * Importante:
- * - Angular template NO soporta (m as any).prop
- * - Usamos helpers getText/getCreatedAt para render seguro
+ * ✅ AiAssistantPanelComponent
+ * ✅ NUEVO: Deshabilita envío cuando NO está ACTIVE
  */
 @Component({
   standalone: true,
@@ -43,7 +38,6 @@ import type { ChatMessage } from '../../../domain/models/chat-message.model';
     NgIf,
     NgFor,
     DatePipe,
-
     MatCardModule,
     MatIconModule,
     MatButtonModule,
@@ -58,6 +52,7 @@ import type { ChatMessage } from '../../../domain/models/chat-message.model';
 })
 export class AiAssistantPanelComponent implements OnChanges, AfterViewInit, OnDestroy {
   private readonly ai = inject(AiAssistantFacade);
+  private readonly shell = inject(ChatShellFacade);
   private readonly snack = inject(MatSnackBar);
 
   @Input() assistantUserId: string = '';
@@ -68,6 +63,14 @@ export class AiAssistantPanelComponent implements OnChanges, AfterViewInit, OnDe
   @ViewChild('assistantInput') private assistantInput?: ElementRef<HTMLInputElement>;
 
   readonly vm = this.ai;
+
+  /**
+   * ✅ Envío habilitado SOLO si estado laboral es ACTIVE
+   */
+  readonly canSend = computed(() => {
+    const st = this.shell.status();
+    return st === WorkStatus.ACTIVE || String(st) === 'ACTIVE';
+  });
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes['assistantUserId']) {
@@ -85,6 +88,13 @@ export class AiAssistantPanelComponent implements OnChanges, AfterViewInit, OnDe
   }
 
   async send(): Promise<void> {
+    if (!this.canSend()) {
+      this.snack.open('No puedes enviar mensajes al asistente en Pausa/Almuerzo/Desconectado.', 'OK', {
+        duration: 2500,
+      });
+      return;
+    }
+
     const text = this.draft().trim();
     if (!text) return;
 
@@ -109,9 +119,6 @@ export class AiAssistantPanelComponent implements OnChanges, AfterViewInit, OnDe
     this.snack.open('Historial del asistente recargado.', 'OK', { duration: 1800 });
   }
 
-  /**
-   * ✅ Determina si el mensaje es del usuario (derecha/verde)
-   */
   isUserMessage(m: ChatMessage): boolean {
     const anyMsg = m as unknown as Record<string, unknown>;
 
@@ -119,8 +126,7 @@ export class AiAssistantPanelComponent implements OnChanges, AfterViewInit, OnDe
     if (role.toLowerCase() === 'user') return true;
     if (role.toLowerCase() === 'assistant') return false;
 
-    const senderRole =
-      typeof anyMsg['senderRole'] === 'string' ? (anyMsg['senderRole'] as string) : '';
+    const senderRole = typeof anyMsg['senderRole'] === 'string' ? (anyMsg['senderRole'] as string) : '';
     if (senderRole.toLowerCase() === 'user') return true;
     if (senderRole.toLowerCase() === 'assistant') return false;
 
@@ -131,16 +137,12 @@ export class AiAssistantPanelComponent implements OnChanges, AfterViewInit, OnDe
       '';
 
     if (this.assistantUserId && senderId) {
-      // si el autor NO es el asistente => es el usuario
       return senderId !== this.assistantUserId;
     }
 
     return false;
   }
 
-  /**
-   * ✅ Texto del mensaje (tolerante a variaciones del backend)
-   */
   getText(m: ChatMessage): string {
     const anyMsg = m as unknown as Record<string, unknown>;
 
@@ -156,9 +158,6 @@ export class AiAssistantPanelComponent implements OnChanges, AfterViewInit, OnDe
     return '';
   }
 
-  /**
-   * ✅ Fecha del mensaje (compatible con DatePipe)
-   */
   getCreatedAt(m: ChatMessage): Date | string | null {
     const anyMsg = m as unknown as Record<string, unknown>;
 
@@ -166,17 +165,15 @@ export class AiAssistantPanelComponent implements OnChanges, AfterViewInit, OnDe
     if (createdAt instanceof Date) return createdAt;
     if (typeof createdAt === 'string') return createdAt;
 
-    const createdAtAlt = anyMsg['created_at'] ?? anyMsg['timestamp'];
+    const createdAtAlt = (anyMsg['created_at'] as any) ?? (anyMsg['timestamp'] as any);
     if (createdAtAlt instanceof Date) return createdAtAlt;
     if (typeof createdAtAlt === 'string') return createdAtAlt;
 
     return null;
   }
 
-  /**
-   * ✅ Public porque el shell puede invocarlo (ViewChild)
-   */
   focusInput(): void {
+    if (!this.canSend()) return;
     window.setTimeout(() => this.assistantInput?.nativeElement?.focus(), 50);
   }
 

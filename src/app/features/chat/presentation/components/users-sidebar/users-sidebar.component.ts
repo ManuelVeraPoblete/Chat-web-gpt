@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, computed } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf, NgClass } from '@angular/common';
 
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
@@ -10,10 +10,11 @@ import { MatButtonModule } from '@angular/material/button';
 
 import { UsersSidebarFacade } from '../../../application/users-sidebar.facade';
 import type { AppUser } from '../../../domain/models/app-user.model';
+import { WorkStatus } from '../../../domain/value-objects/work-status.vo';
 
 /**
- * ✅ UsersSidebarComponent (PRO)
- * - Tab "Usuarios": muestra usuarios REALES (excluye asistente IA)
+ * ✅ UsersSidebarComponent
+ * - Tab "Usuarios": muestra usuarios reales (excluye Asistente IA)
  * - Tab "Chat IA": muestra SOLO el Asistente IA como “usuario”
  * - NO navega: emite eventos al contenedor (ChatShell)
  */
@@ -21,8 +22,12 @@ import type { AppUser } from '../../../domain/models/app-user.model';
   standalone: true,
   selector: 'cc-users-sidebar',
   imports: [
+    // ✅ Angular
     NgIf,
     NgFor,
+    NgClass,
+
+    // ✅ Material
     MatTabsModule,
     MatListModule,
     MatIconModule,
@@ -48,6 +53,8 @@ export class UsersSidebarComponent implements OnInit {
    */
   @Output() tabChanged = new EventEmitter<'users' | 'ai'>();
 
+  readonly WorkStatus = WorkStatus;
+
   constructor(public readonly vm: UsersSidebarFacade) {}
 
   /**
@@ -56,14 +63,13 @@ export class UsersSidebarComponent implements OnInit {
   readonly usersFiltered = computed(() => {
     const users = this.vm.users();
     const assistantId = this.assistantUserId;
+
     if (!assistantId) return users;
     return users.filter((u) => u.id !== assistantId);
   });
 
   /**
    * ✅ “Usuario” asistente para el tab Chat IA
-   * - Si el backend lo trae en la lista, lo usamos
-   * - Si no, mostramos un placeholder decente
    */
   readonly assistantUser = computed<AppUser | null>(() => {
     const assistantId = this.assistantUserId;
@@ -72,13 +78,12 @@ export class UsersSidebarComponent implements OnInit {
     const found = this.vm.users().find((u) => u.id === assistantId);
     if (found) return found;
 
-    // Fallback (por si el backend no devuelve el asistente dentro del listado)
+    // Fallback si el asistente no viene desde backend
     return {
       id: assistantId,
       displayName: 'Asistente IA',
       jobTitle: 'Asistente Corporativo',
       companySection: '',
-      // Si tu AppUser tiene más campos obligatorios, los dejas en blanco/undefined.
     } as unknown as AppUser;
   });
 
@@ -86,26 +91,15 @@ export class UsersSidebarComponent implements OnInit {
     await this.vm.load();
   }
 
-  /**
-   * ✅ Selección usuario real (no IA)
-   */
   selectUser(u: AppUser): void {
     if (!u?.id) return;
     this.userSelected.emit(u);
   }
 
-  /**
-   * ✅ Selección del asistente IA (no navega a /chat/:id)
-   * Solo cambia el modo a IA para que el panel derecho aparezca y se enfoque.
-   */
   openAssistant(): void {
     this.tabChanged.emit('ai');
   }
 
-  /**
-   * ✅ Emitimos modo según tab
-   * index 0 = Usuarios, index 1 = Chat IA
-   */
   onTabIndexChange(index: number): void {
     this.tabChanged.emit(index === 1 ? 'ai' : 'users');
   }
@@ -121,5 +115,35 @@ export class UsersSidebarComponent implements OnInit {
   unreadCount(u: AppUser): number {
     const counts = this.vm.unread();
     return counts?.[u.id] ?? 0;
+  }
+
+  /**
+   * ✅ Estado laboral del usuario (para dot + tooltip)
+   */
+  statusOf(u: AppUser): WorkStatus {
+    return this.vm.getStatus(u.id);
+  }
+
+  /**
+   * ✅ Clase CSS para el dot de estado
+   * (los colores reales se definen en SCSS)
+   */
+  statusDotClass(st: WorkStatus): string {
+    if (st === WorkStatus.ACTIVE) return 'green';
+    if (st === WorkStatus.PAUSED) return 'yellow';
+    if (st === WorkStatus.LUNCH) return 'orange';
+    if (st === WorkStatus.ENDED) return 'gray';
+    return 'gray';
+  }
+
+  /**
+   * ✅ Texto humano para tooltip del estado
+   */
+  statusLabel(st: WorkStatus): string {
+    if (st === WorkStatus.ACTIVE) return 'Conectado';
+    if (st === WorkStatus.PAUSED) return 'En pausa';
+    if (st === WorkStatus.LUNCH) return 'En almuerzo';
+    if (st === WorkStatus.ENDED) return 'Desconectado';
+    return 'Sin iniciar';
   }
 }

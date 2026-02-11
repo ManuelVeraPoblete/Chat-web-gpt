@@ -1,9 +1,19 @@
+/* src/app/features/chat/presentation/components/ai-assistant-panel/ai-assistant-panel.component.scss */
+
 .panel {
   height: 100%;
+
+  /* ✅ Marco/contorno negro */
+  border: 2px solid #000;
   border-radius: 16px;
+
   overflow: hidden;
   display: flex;
   flex-direction: column;
+
+  /* (Opcional, recomendado) para que se vea bien sobre fondos con imagen */
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
 }
 
 .header {
@@ -69,6 +79,8 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 14px;
+
+  /* ✅ Mantengo tu fondo, pero ya el panel tiene glass encima */
   background: #fbfcfe;
 }
 

@@ -1,12 +1,25 @@
-.page-content {
-  padding: 16px;
+:host {
+  display: block;
+  height: 100%;
 }
 
-/* Botón volver */
-.top-actions {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 10px;
+/**
+ * ✅ Fondo general del módulo de chat (dashboard)
+ * - Imagen corpchat-chat.jpg
+ * - Overlay para que el contenido se lea siempre
+ */
+.page-content {
+  padding: 16px;
+
+  /* ✅ Background general */
+  background-image:url('/assets/bg/corpchat-chat.jpg');
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* ✅ Para cubrir pantalla completa bajo la top bar */
+  min-height: calc(100vh - 64px);
 }
 
 /**
@@ -14,12 +27,12 @@
  * - Izquierda: fijo (sidebar)
  * - Centro y derecha: mismo ancho (1fr + 1fr)
  *
- * Resultado:
- * - "Chat en Vivo" y "Asistente IA" quedan idénticos en ancho.
+ * Derecha:
+ * - Stack vertical: IA arriba + Estados abajo
  */
 .dashboard {
   display: grid;
-  grid-template-columns: 320px 1fr 1fr; /* ✅ CAMBIO CLAVE */
+  grid-template-columns: 320px 1fr 1fr;
   gap: 12px;
 
   height: calc(100vh - 140px);
@@ -28,13 +41,33 @@
 
 .dashboard > * {
   min-height: 0;
-  min-width: 0; /* ✅ importante para que el contenido no fuerce el grid */
+  min-width: 0;
 }
 
 .center-col,
 .right-col {
   min-height: 0;
   min-width: 0;
+}
+
+/* ✅ Stack vertical en columna derecha */
+.right-stack {
+  height: 100%;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ✅ El panel IA debe crecer; el panel de estados queda abajo */
+.right-stack cc-ai-assistant-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.right-stack cc-work-status-panel {
+  flex: 0 0 auto;
 }
 
 /* ✅ Tablet */
@@ -54,6 +87,10 @@
   .right-col.show-on-small {
     display: block;
     grid-column: 2 / 3;
+  }
+
+  .right-stack {
+    height: calc(100vh - 160px);
   }
 }
 
@@ -78,5 +115,9 @@
 
   .right-col.show-on-small {
     display: block;
+  }
+
+  .right-stack {
+    height: auto;
   }
 }

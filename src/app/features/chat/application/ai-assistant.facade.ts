@@ -10,14 +10,10 @@ import type { ChatMessage } from '../domain/models/chat-message.model';
  *   GET  /chat/:peerId/messages?limit=200  -> getHistory(peerId)
  *   POST /chat/:peerId/messages           -> sendText(peerId, text)
  *
- * ✅ UX (igual que Chat en Vivo):
+ * ✅ UX:
  * - "Limpiar pantalla" limpia solo UI y bloquea repoblación automática
- *   (polling NO debe traer historial)
- * - Enviar mensajes mientras está limpio:
- *   -> se muestran SOLO los mensajes nuevos (no vuelve el historial)
- * - Solo "Recargar historial" restaura todo el historial
- *
- * ✅ Limpio, tipado, sin any.
+ * - Enviar mientras está limpio: solo aparecen mensajes nuevos
+ * - Solo "Recargar historial" restaura historial
  */
 @Injectable({ providedIn: 'root' })
 export class AiAssistantFacade {
@@ -27,16 +23,7 @@ export class AiAssistantFacade {
   private readonly loadingSig = signal(false);
   private readonly sendingSig = signal(false);
 
-  /**
-   * ✅ Bandera: cuando el usuario limpia la vista,
-   * bloqueamos la recarga automática para que no reaparezcan mensajes.
-   */
   private readonly viewClearedSig = signal(false);
-
-  /**
-   * ✅ Conversación del asistente (informativo)
-   * (viene en GET /chat/:peerId/messages)
-   */
   private readonly conversationIdSig = signal<string | null>(null);
 
   readonly assistantUserId = computed(() => this.assistantIdSig());
@@ -50,41 +37,21 @@ export class AiAssistantFacade {
 
   constructor(private readonly chatRepo: ChatRepositoryHttp) {}
 
-  /**
-   * ✅ Inicializa el chat del asistente.
-   * - Cambia assistantUserId
-   * - Habilita modo normal (historial visible)
-   * - Carga historial forzado y parte polling
-   */
   async init(assistantUserId: string): Promise<void> {
     if (!assistantUserId) {
-      this.stopPolling();
-      this.assistantIdSig.set('');
-      this.messagesSig.set([]);
-      this.conversationIdSig.set(null);
-      this.viewClearedSig.set(false);
+      this.resetState();
       return;
     }
 
     if (this.assistantIdSig() === assistantUserId) return;
 
     this.assistantIdSig.set(assistantUserId);
-
-    // ✅ Al cambiar asistente, volvemos a comportamiento normal
     this.viewClearedSig.set(false);
 
     await this.reload(true);
     this.startPolling();
   }
 
-  /**
-   * ✅ Envía pregunta a la IA
-   * IMPORTANTE:
-   * - Si viewCleared=true, NO reponemos historial.
-   * - Solo agregamos el mensaje retornado por POST (lo que el backend retorne como ChatMessage).
-   * - La respuesta del asistente puede llegar por polling (GET),
-   *   pero si viewCleared=true, el polling NO traerá nada hasta que recargues manualmente.
-   */
   async ask(text: string): Promise<void> {
     const assistantId = this.assistantIdSig();
     const clean = text.trim();
@@ -94,25 +61,18 @@ export class AiAssistantFacade {
     try {
       const created = await this.chatRepo.sendText(assistantId, clean);
 
-      // ✅ CLAVE: NO cambiamos viewClearedSig aquí.
-      // Si el usuario limpió, se mantiene limpio, y solo aparecen mensajes nuevos.
+      // ✅ Si estaba "limpio", se mantiene limpio; solo agregamos lo nuevo.
       this.messagesSig.set([...this.messagesSig(), created]);
     } finally {
       this.sendingSig.set(false);
     }
   }
 
-  /**
-   * ✅ Recarga historial desde backend
-   * @param force
-   * - false: respeta viewCleared (polling NO repone)
-   * - true : fuerza recarga y desactiva viewCleared (restaura historial completo)
-   */
   async reload(force = false): Promise<void> {
     const assistantId = this.assistantIdSig();
     if (!assistantId) return;
 
-    // ✅ si está limpio, no repoblar automáticamente
+    // Si el usuario limpió la vista, NO repoblar automáticamente (a menos que sea forzado)
     if (!force && this.viewClearedSig()) return;
 
     this.loadingSig.set(true);
@@ -121,10 +81,8 @@ export class AiAssistantFacade {
 
       this.conversationIdSig.set(res.conversationId ?? null);
 
-      // ✅ Deja el orden como tu UI lo necesite.
-      // Si tu backend ya viene en orden cronológico, elimina el reverse.
+      // backend suele venir newest-first, invertimos para render natural
       const ordered = [...res.messages].reverse();
-
       this.messagesSig.set(ordered);
 
       if (force) this.viewClearedSig.set(false);
@@ -133,11 +91,6 @@ export class AiAssistantFacade {
     }
   }
 
-  /**
-   * ✅ Limpia SOLO la pantalla (UI)
-   * - No borra backend
-   * - Bloquea repoblación automática
-   */
   clearView(): void {
     this.messagesSig.set([]);
     this.viewClearedSig.set(true);
@@ -155,5 +108,18 @@ export class AiAssistantFacade {
       window.clearInterval(this.pollTimer);
       this.pollTimer = undefined;
     }
+  }
+
+  /**
+   * ✅ NUEVO: Resetea estado en memoria (para 401/logout)
+   */
+  resetState(): void {
+    this.stopPolling();
+    this.assistantIdSig.set('');
+    this.messagesSig.set([]);
+    this.loadingSig.set(false);
+    this.sendingSig.set(false);
+    this.viewClearedSig.set(false);
+    this.conversationIdSig.set(null);
   }
 }

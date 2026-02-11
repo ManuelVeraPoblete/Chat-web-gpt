@@ -7,7 +7,6 @@
       <div class="subtitle-row">
         <div class="h2">Chat con {{ peerName }}</div>
 
-        <!-- ✅ NUEVO: indicador cuando el usuario limpió la pantalla -->
         <mat-chip *ngIf="vm.viewCleared()" class="chip-clean" aria-label="Vista limpia">
           <mat-icon class="chip-ic" aria-hidden="true">delete_sweep</mat-icon>
           Vista limpia
@@ -56,9 +55,16 @@
       (input)="draft.set(($any($event.target).value))"
       placeholder="Escribe un mensaje…"
       aria-label="Escribe un mensaje"
+      [disabled]="!canSend()"
     />
 
-    <button mat-raised-button color="primary" (click)="send()" [disabled]="vm.sending()">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="send()"
+      [disabled]="vm.sending() || !canSend()"
+      [matTooltip]="!canSend() ? 'Chat deshabilitado: Pausa/Almuerzo/Desconectado' : ''"
+    >
       {{ vm.sending() ? 'Enviando…' : 'Enviar' }}
     </button>
   </div>

@@ -1,271 +1,226 @@
 /* src/app/features/chat/presentation/components/users-sidebar/users-sidebar.component.scss */
 
-.sidebar-card {
+:host {
+  display: block;
+  width: 100%;
   height: 100%;
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 12px;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.sidebar-card {
+  background: #0b2a55;
+  border: 2px solid #000; /* ✅ marco negro */
+  border-radius: 16px;
+  padding: 14px;
+  color: #fff;
+
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* ✅ blindaje horizontal */
 }
 
 .sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
   margin-bottom: 10px;
 
   .title {
     font-weight: 800;
-    font-size: 16px;
-    color: #0b2a55;
+    letter-spacing: 0.2px;
+    font-size: 14px;
+    opacity: 0.95;
+    color: #fff;
   }
 
   .refresh {
-    font-weight: 700;
+    color: rgba(255, 255, 255, 0.92);
+
+    mat-icon {
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
   }
 }
 
 .tabs {
   flex: 1;
-  overflow: hidden;
+  min-height: 0;
+
+  ::ng-deep .mat-mdc-tab-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  ::ng-deep .mdc-tab__text-label {
+    color: rgba(255, 255, 255, 0.82);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.2px;
+  }
+
+  ::ng-deep .mdc-tab--active .mdc-tab__text-label {
+    color: #fff;
+  }
+
+  ::ng-deep .mdc-tab-indicator__content--underline {
+    border-color: rgba(255, 255, 255, 0.88);
+  }
 }
-
-/* =========================================================
-   ✅ FIX: evitar scroll horizontal en tabs Material
-   ========================================================= */
-
-:host ::ng-deep .mat-mdc-tab-body-content {
-  padding: 8px 0;
-  overflow-x: hidden !important;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-:host ::ng-deep .mat-mdc-tab-body-content mat-nav-list {
-  overflow-x: hidden !important;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-:host ::ng-deep .mat-mdc-tab-body-content .mdc-list-item,
-:host ::ng-deep .mat-mdc-tab-body-content .mat-mdc-list-item {
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden;
-}
-
-:host ::ng-deep .mat-mdc-tab-body-content * {
-  box-sizing: border-box;
-}
-
-/* =========================================================
-   ✅ Estados (legend)
-   ========================================================= */
 
 .status-legend {
+  margin: 12px 0 10px 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 10px 4px 12px;
-  color: #334155;
-  font-size: 12px;
+  grid-template-columns: 1fr;
+  gap: 6px;
 
   .item {
     display: flex;
     align-items: center;
     gap: 8px;
+    font-size: 12px;
+    line-height: 1.2;
+    color: rgba(255, 255, 255, 0.86);
   }
 
-  .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
+  .count {
+    color: rgba(255, 255, 255, 0.72);
+    font-weight: 800;
   }
-
-  .green { background: #1ea97c; }
-  .yellow { background: #f4c542; }
-  .orange { background: #f28c28; }
-  .gray { background: #6b7280; }
 }
+
+.dot,
+.status-dot,
+.online-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+  flex: 0 0 10px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
+}
+
+.green { background: #1ea97c; }
+.yellow { background: #f0c419; }
+.orange { background: #ff8a3d; }
+.gray { background: rgba(255, 255, 255, 0.35); }
 
 .loading {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 12px 6px;
-  color: #475569;
-  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 700;
+  font-size: 13px;
+
+  ::ng-deep .mat-mdc-progress-spinner {
+    width: 26px !important;
+    height: 26px !important;
+  }
 }
 
-/* =========================================================
-   ✅ Usuarios (tab Usuarios)
-   ========================================================= */
+mat-nav-list {
+  padding-top: 6px;
+}
+
+::ng-deep .sidebar-card .mat-mdc-list-item .mdc-list-item__primary-text {
+  color: #ffffff !important;
+  font-weight: 800;
+}
+
+::ng-deep .sidebar-card .mat-mdc-list-item .mdc-list-item__secondary-text {
+  color: rgba(255, 255, 255, 0.74) !important;
+}
+
+::ng-deep .sidebar-card .mat-mdc-list-item .mdc-list-item__content {
+  color: #ffffff !important;
+}
 
 .user-row {
+  position: relative;
   border-radius: 12px;
-  margin: 4px 0;
+  margin: 6px 0;
+  padding-right: 46px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
 
   &.selected {
-    background: rgba(11, 42, 85, 0.08);
+    background: rgba(255, 255, 255, 0.12);
+    outline: 1px solid rgba(255, 255, 255, 0.16);
   }
 
   .avatar-ic {
-    color: #0b2a55;
+    opacity: 0.95;
+    color: rgba(255, 255, 255, 0.92);
   }
 
-  .name {
-    font-weight: 800;
-  }
-
-  .meta {
-    color: #64748b;
-    font-size: 12px;
+  .status-dot {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .unread {
-    margin-left: auto;
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    ::ng-deep .mat-badge-content {
+      font-weight: 900;
+    }
+  }
+}
+
+.ai-row {
+  margin-top: 10px;
+
+  .ai-ic {
+    opacity: 0.95;
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  .ai-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .online-dot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    background: #1ea97c;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
   }
 }
 
 .placeholder {
-  padding: 16px;
-  text-align: center;
-  color: #475569;
+  padding: 14px 6px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.88);
 
   mat-icon {
-    font-size: 34px;
-    width: 34px;
-    height: 34px;
-    opacity: 0.8;
+    opacity: 0.9;
+    color: rgba(255, 255, 255, 0.9);
   }
 
   p {
-    margin-top: 10px;
-    font-weight: 600;
-  }
-}
-
-/* =========================================================
-   ✅ Chat IA (tab Chat IA): item premium + alto correcto
-   ========================================================= */
-
-/**
- * ✅ Card del asistente IA
- * - Ancho OK sin scroll horizontal
- * - ✅ Alto flexible (no corta la 2da línea)
- * - Badge absoluto (no empuja layout)
- */
-.ai-row {
-  width: calc(100% - 20px);
-  max-width: 100%;
-  margin: 10px auto;
-  box-sizing: border-box;
-
-  border-radius: 999px;
-
-  /* ✅ más alto para 2 líneas */
-  padding: 12px 14px;
-
-  background: linear-gradient(
-    180deg,
-    rgba(11, 42, 85, 0.06),
-    rgba(11, 42, 85, 0.02)
-  );
-  border: 1px solid rgba(11, 42, 85, 0.10);
-
-  overflow: hidden;
-  position: relative;
-
-  transition: transform 120ms ease, box-shadow 120ms ease;
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.10);
-  }
-}
-
-/* ✅ Fuerza al list-item IA a crecer (Material suele fijar altura) */
-:host ::ng-deep .ai-row.mat-mdc-list-item,
-:host ::ng-deep .ai-row.mdc-list-item {
-  height: auto !important;
-  min-height: 64px !important; /* ✅ suficiente para 2 líneas */
-  align-items: flex-start !important; /* evita que centre y corte */
-}
-
-/* ✅ Ajuste del contenedor interno del list item */
-:host ::ng-deep .ai-row .mdc-list-item__content {
-  padding: 0 !important; /* usamos nuestro padding en .ai-row */
-  align-self: stretch;
-}
-
-/* ✅ Icono */
-.ai-ic {
-  color: #0b2a55;
-}
-
-/* ✅ Nombre y meta: no forzar ancho, pero permitir ver contenido */
-.ai-row .name {
-  font-weight: 900;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ✅ Meta (Online…) que NO se corte */
-.ai-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  min-width: 0;
-  line-height: 18px;
-  padding-top: 2px;
-
-  /* Importante: no truncar para que se vea completo */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.online-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: #1ea97c;
-  box-shadow: 0 0 0 3px rgba(30, 169, 124, 0.18);
-  flex: 0 0 auto;
-}
-
-/* ✅ Badge "IA": no empuja layout y no tapa la 2da línea */
-:host ::ng-deep .ai-row .mat-badge-content {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  transform: none;
-
-  font-weight: 900;
-  letter-spacing: 0.3px;
-  border-radius: 999px;
-  padding: 0 8px;
-}
-
-/* =========================================================
-   ✅ Responsive
-   ========================================================= */
-
-@media (max-width: 420px) {
-  .ai-row {
-    width: calc(100% - 12px);
-    padding: 12px 12px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
   }
 
-  :host ::ng-deep .ai-row.mat-mdc-list-item,
-  :host ::ng-deep .ai-row.mdc-list-item {
-    min-height: 68px !important;
+  strong {
+    color: #fff;
   }
 }

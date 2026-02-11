@@ -1,43 +1,47 @@
 import { Component, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+
 import { ChatShellFacade } from '../../../application/facades/chat-shell.facade';
 import { UsersSidebarComponent } from '../../components/users-sidebar/users-sidebar.component';
 import { LiveChatPanelComponent } from '../../components/live-chat-panel/live-chat-panel.component';
 import { AiAssistantPanelComponent } from '../../components/ai-assistant-panel/ai-assistant-panel.component';
+import { WorkStatusPanelComponent } from '../../components/work-status-panel/work-status-panel.component';
 
 import type { AppUser } from '../../../domain/models/app-user.model';
 import { environment } from '../../../../../../environments/environment';
 
-// ✅ NUEVO: barra superior corporativa
+// ✅ Barra superior corporativa
 import { TopAppBarComponent } from '../../../../../shared/ui/top-app-bar/top-app-bar.component';
 
 /**
- * ✅ ChatShellPage (con barra superior corporativa)
- * - Solo UI (barra top)
- * - Mantiene dashboard 3 columnas
+ * ✅ ChatShellPage
+ * - Contenedor UI del dashboard 3 columnas
+ * - Controla el modo (Usuarios vs IA) para responsive
+ * - Sin lógica de negocio: usa Facades
  */
 @Component({
   standalone: true,
   selector: 'cc-chat-shell-page',
   imports: [
     RouterModule,
-  
 
     // Material
     MatIconModule,
     MatButtonModule,
     MatSnackBarModule,
 
-    // ✅ Top bar corporativa
+    // Top bar corporativa
     TopAppBarComponent,
 
     // Feature components
     UsersSidebarComponent,
     LiveChatPanelComponent,
     AiAssistantPanelComponent,
+    WorkStatusPanelComponent,
   ],
   templateUrl: './chat-shell.page.html',
   styleUrl: './chat-shell.page.scss',
@@ -54,12 +58,20 @@ export class ChatShellPage implements OnInit {
 
   assistantUserId: string = environment.assistantUserId ?? '';
 
+  /**
+   * ✅ En móvil:
+   * - "users" muestra chat clásico
+   * - "ai" muestra panel IA (y mantiene el panel de estados abajo)
+   */
   readonly viewMode = signal<'users' | 'ai'>('users');
 
   @ViewChild(LiveChatPanelComponent) liveChatPanel?: LiveChatPanelComponent;
   @ViewChild(AiAssistantPanelComponent) aiPanel?: AiAssistantPanelComponent;
 
   ngOnInit(): void {
+    // ✅ Sincroniza estado laboral desde backend al entrar
+    this.vm.loadToday();
+
     const id = this.route.snapshot.paramMap.get('userId') ?? '';
     if (id) {
       this.currentPeerId = id;

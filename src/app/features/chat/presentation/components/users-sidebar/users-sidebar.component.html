@@ -15,11 +15,27 @@
   >
     <!-- TAB: Usuarios (sin IA) -->
     <mat-tab label="Usuarios">
+      <!-- ✅ Leyenda de estados -->
       <div class="status-legend">
-        <div class="item"><span class="dot green"></span>Conectado</div>
-        <div class="item"><span class="dot yellow"></span>Pausa</div>
-        <div class="item"><span class="dot orange"></span>Almuerzo</div>
-        <div class="item"><span class="dot gray"></span>Desconectado</div>
+        <div class="item">
+          <span class="dot green"></span>
+          Conectado <span class="count">({{ vm.statusCounts().active }})</span>
+        </div>
+
+        <div class="item">
+          <span class="dot yellow"></span>
+          En pausa <span class="count">({{ vm.statusCounts().paused }})</span>
+        </div>
+
+        <div class="item">
+          <span class="dot orange"></span>
+          En almuerzo <span class="count">({{ vm.statusCounts().lunch }})</span>
+        </div>
+
+        <div class="item">
+          <span class="dot gray"></span>
+          Desconectado <span class="count">({{ vm.statusCounts().ended }})</span>
+        </div>
       </div>
 
       <div class="loading" *ngIf="vm.loading()">
@@ -47,6 +63,14 @@
             {{ u.companySection || '' }}
           </div>
 
+          <!-- ✅ Dot de estado laboral -->
+          <span
+            class="status-dot"
+            [ngClass]="statusDotClass(statusOf(u))"
+            title="{{ statusLabel(statusOf(u)) }}"
+          ></span>
+
+          <!-- ✅ Unread -->
           <span
             class="unread"
             *ngIf="unreadCount(u) > 0"
@@ -60,42 +84,43 @@
     </mat-tab>
 
     <!-- TAB: Chat IA (muestra SOLO el asistente como “usuario”) -->
-<mat-tab label="Chat IA">
-  <div class="loading" *ngIf="vm.loading()">
-    <mat-spinner diameter="26"></mat-spinner>
-    <span>Cargando…</span>
-  </div>
-
-  <div class="placeholder" *ngIf="!vm.loading() && !assistantUser()">
-    <mat-icon>warning</mat-icon>
-    <p>Configura <strong>assistantUserId</strong> en environment para ver el Asistente IA.</p>
-  </div>
-
-  <mat-nav-list *ngIf="!vm.loading() && assistantUser() as a">
-    <a
-      mat-list-item
-      class="user-row ai-row"
-      (click)="openAssistant()"
-      aria-label="Abrir chat con Asistente IA"
-      matBadge="IA"
-      matBadgeColor="primary"
-      matBadgePosition="after"
-      matBadgeSize="medium"
-      matBadgeOverlap="false"
-    >
-      <mat-icon matListItemIcon class="avatar-ic ai-ic">smart_toy</mat-icon>
-
-      <div matListItemTitle class="name">
-        {{ a.displayName || 'Asistente IA' }}
+    <mat-tab label="Chat IA">
+      <div class="loading" *ngIf="vm.loading()">
+        <mat-spinner diameter="26"></mat-spinner>
+        <span>Cargando…</span>
       </div>
 
-      <div matListItemLine class="meta ai-meta">
-        <span class="online-dot" aria-hidden="true"></span>
-        Online • {{ a.jobTitle || 'Asistente Corporativo' }}
+      <div class="placeholder" *ngIf="!vm.loading() && !assistantUser()">
+        <mat-icon>warning</mat-icon>
+        <p>
+          Configura <strong>assistantUserId</strong> en environment para ver el Asistente IA.
+        </p>
       </div>
-    </a>
-  </mat-nav-list>
-</mat-tab>
 
+      <mat-nav-list *ngIf="!vm.loading() && assistantUser() as a">
+        <a
+          mat-list-item
+          class="user-row ai-row"
+          (click)="openAssistant()"
+          aria-label="Abrir chat con Asistente IA"
+          matBadge="IA"
+          matBadgeColor="primary"
+          matBadgePosition="after"
+          matBadgeSize="medium"
+          matBadgeOverlap="false"
+        >
+          <mat-icon matListItemIcon class="avatar-ic ai-ic">smart_toy</mat-icon>
+
+          <div matListItemTitle class="name">
+            {{ a.displayName || 'Asistente IA' }}
+          </div>
+
+          <div matListItemLine class="meta ai-meta">
+            <span class="online-dot" aria-hidden="true"></span>
+            Online • {{ a.jobTitle || 'Asistente Corporativo' }}
+          </div>
+        </a>
+      </mat-nav-list>
+    </mat-tab>
   </mat-tab-group>
 </div>

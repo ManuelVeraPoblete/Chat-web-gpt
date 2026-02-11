@@ -5,9 +5,8 @@
       <div class="h1">Asistente IA</div>
 
       <div class="subtitle-row">
-        <div class="h2">Asistente Corporativo</div>
+        <div class="h2">Consulta a tu asistente corporativo</div>
 
-        <!-- ✅ Chip visible cuando se limpió la pantalla -->
         <mat-chip *ngIf="vm.viewCleared()" class="chip-clean" aria-label="Vista limpia">
           <mat-icon class="chip-ic" aria-hidden="true">delete_sweep</mat-icon>
           Vista limpia
@@ -16,7 +15,6 @@
     </div>
 
     <div class="actions">
-      <!-- Menú 3 puntos -->
       <button
         mat-icon-button
         [matMenuTriggerFor]="aiMenu"
@@ -35,11 +33,7 @@
     <div class="row" *ngFor="let m of vm.messages()">
       <div class="bubble" [class.mine]="isUserMessage(m)">
         <div class="text">{{ getText(m) }}</div>
-
-        <!-- ✅ Evita error si createdAt viene null -->
-        <div class="meta" *ngIf="getCreatedAt(m) as dt">
-          {{ dt | date: 'dd/MM HH:mm' }}
-        </div>
+        <div class="meta">{{ getCreatedAt(m) | date: 'dd/MM HH:mm' }}</div>
       </div>
     </div>
   </div>
@@ -51,18 +45,23 @@
       class="input"
       [value]="draft()"
       (input)="draft.set(($any($event.target).value))"
-      placeholder="Escribe tu pregunta…"
-      aria-label="Escribe tu pregunta"
-      (keydown.enter)="send()"
+      placeholder="Escribe tu consulta…"
+      aria-label="Escribe tu consulta"
+      [disabled]="!canSend()"
     />
 
-    <button mat-raised-button color="primary" (click)="send()" [disabled]="vm.sending()">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="send()"
+      [disabled]="vm.sending() || !canSend()"
+      [matTooltip]="!canSend() ? 'IA deshabilitada: Pausa/Almuerzo/Desconectado' : ''"
+    >
       {{ vm.sending() ? 'Enviando…' : 'Enviar' }}
     </button>
   </div>
 </mat-card>
 
-<!-- ✅ Menú -->
 <mat-menu #aiMenu="matMenu">
   <button mat-menu-item (click)="clearAiView()">
     <mat-icon>delete_sweep</mat-icon>

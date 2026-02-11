@@ -1,23 +1,19 @@
 <!-- ✅ Barra superior corporativa -->
 <cc-top-app-bar [appName]="'CorpChat'"></cc-top-app-bar>
 
-<!-- Contenido principal -->
 <main class="page-content">
-  <div class="top-actions">
-    <button mat-button (click)="back()" aria-label="Volver">
-      <mat-icon>arrow_back</mat-icon>
-      Volver
-    </button>
-  </div>
+  
 
   <div class="dashboard">
+    <!-- Columna izquierda -->
     <cc-users-sidebar
-  [currentPeerId]="currentPeerId"
-  [assistantUserId]="assistantUserId"
-  (userSelected)="onUserSelected($event)"
-  (tabChanged)="onTabChanged($event)"
-></cc-users-sidebar>
+      [currentPeerId]="currentPeerId"
+      [assistantUserId]="assistantUserId"
+      (userSelected)="onUserSelected($event)"
+      (tabChanged)="onTabChanged($event)"
+    ></cc-users-sidebar>
 
+    <!-- Columna central (chat con usuarios) -->
     <div class="center-col" [class.hide-on-small]="viewMode() === 'ai'">
       <cc-live-chat-panel
         [peerId]="currentPeerId"
@@ -25,8 +21,13 @@
       ></cc-live-chat-panel>
     </div>
 
+    <!-- Columna derecha (IA arriba + estados abajo) -->
     <div class="right-col" [class.show-on-small]="viewMode() === 'ai'">
-      <cc-ai-assistant-panel [assistantUserId]="assistantUserId"></cc-ai-assistant-panel>
+      <div class="right-stack">
+        <cc-ai-assistant-panel [assistantUserId]="assistantUserId"></cc-ai-assistant-panel>
+
+        <cc-work-status-panel></cc-work-status-panel>
+      </div>
     </div>
   </div>
 </main>

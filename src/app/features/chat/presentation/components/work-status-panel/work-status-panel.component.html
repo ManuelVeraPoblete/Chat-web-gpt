@@ -1,0 +1,29 @@
+<div class="panel">
+  <div class="header">
+    <div class="title">Estados</div>
+    <div class="pill" [attr.data-status]="vm.status()">
+      {{ statusLabel() }}
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="actions">
+    <button
+      *ngFor="let action of allowedActions()"
+      mat-raised-button
+      class="action-btn"
+      [class.danger]="action === WorkdayAction.DISCONNECT"
+      [class.ghost]="action === WorkdayAction.RESET"
+      (click)="run(action)"
+    >
+      <mat-icon>{{ iconFor(action) }}</mat-icon>
+      {{ labelFor(action) }}
+    </button>
+  </div>
+
+  <div class="hint">
+    <span class="dot"></span>
+    Si te equivocaste, usa <b>“Reiniciar estado”</b> para volver a <b>Conectado</b>.
+  </div>
+</div>
