@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import type { firstValueFrom } from 'rxjs';
-import { firstValueFrom as rxFirstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 import type { AuthRepository, RefreshResult } from '../domain/ports/auth.repository';
 import type { Session } from '../domain/models/session.model';
@@ -12,6 +11,15 @@ import type {
   RefreshResponseDto,
 } from './dtos/login.dto';
 
+/**
+ * ✅ AuthRepositoryHttp (Adapter)
+ * Implementación HTTP del puerto AuthRepository.
+ *
+ * Nota:
+ * - El proyecto ya trae interceptors:
+ *   - base-url interceptor => prefija apiBaseUrl
+ *   - auth interceptor => agrega Authorization: Bearer <accessToken>
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthRepositoryHttp implements AuthRepository {
   constructor(private readonly http: HttpClient) {}
@@ -19,9 +27,9 @@ export class AuthRepositoryHttp implements AuthRepository {
   async login(email: string, password: string): Promise<Session> {
     const body: LoginRequestDto = { email, password };
 
-    // RN: POST /auth/login
-    const res = await rxFirstValueFrom(
-      this.http.post<LoginResponseDto>('/auth/login', body)
+    // POST /auth/login
+    const res = await firstValueFrom(
+      this.http.post<LoginResponseDto>('/auth/login', body),
     );
 
     return {
@@ -34,14 +42,24 @@ export class AuthRepositoryHttp implements AuthRepository {
   async refresh(refreshToken: string): Promise<RefreshResult> {
     const body: RefreshRequestDto = { refreshToken };
 
-    // RN: POST /auth/refresh
-    const res = await rxFirstValueFrom(
-      this.http.post<RefreshResponseDto>('/auth/refresh', body)
+    // POST /auth/refresh
+    const res = await firstValueFrom(
+      this.http.post<RefreshResponseDto>('/auth/refresh', body),
     );
 
     return {
       accessToken: res.accessToken,
       refreshToken: res.refreshToken,
     };
+  }
+
+  /**
+   * ✅ Logout backend
+   * - Revoca refresh token en BD.
+   * - Requiere JWT (access token) en header Authorization.
+   */
+  async logout(): Promise<void> {
+    // POST /auth/logout
+    await firstValueFrom(this.http.post<{ ok: boolean }>('/auth/logout', {}));
   }
 }

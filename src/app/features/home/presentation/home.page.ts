@@ -5,6 +5,7 @@ import { NgFor, NgIf } from '@angular/common';
 import { HomeFacade } from '../application/home.facade';
 import { AuthFacade } from '../../auth/application/auth.facade';
 import { PageShellComponent } from '../../../shared/ui/page-shell/page-shell.component';
+import { SocketIoService } from '../../../core/realtime/socket-io.service';
 
 import { MatListModule } from '@angular/material/list';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -30,6 +31,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 export class HomePage implements OnInit {
   private readonly facade = inject(HomeFacade);
   private readonly auth = inject(AuthFacade);
+  private readonly socket = inject(SocketIoService);
   private readonly router = inject(Router);
 
   readonly vm = this.facade;
@@ -38,9 +40,20 @@ export class HomePage implements OnInit {
     await this.facade.load();
   }
 
-  logout(): void {
-    this.auth.logout();
-    this.router.navigateByUrl('/login');
+  /**
+   * ✅ Logout manual:
+   * - Marca desconexión (workday/end) + revoca refresh token (auth/logout)
+   * - Limpia estado del Front
+   * - Cierra Socket.IO
+   * - Vuelve a /login (listo para iniciar una nueva sesión)
+   */
+  async logout(): Promise<void> {
+    await this.auth.logoutFull();
+
+    //  Importante: socket mantiene conexión viva; lo cerramos explícitamente.
+    this.socket.disconnect();
+
+    await this.router.navigateByUrl('/login');
   }
 
   openChat(userId: string): void {

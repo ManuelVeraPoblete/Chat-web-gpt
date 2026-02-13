@@ -1,20 +1,23 @@
 import { Injectable, computed, signal } from '@angular/core';
+import { from, Observable, shareReplay, tap, firstValueFrom } from 'rxjs';
+
 import { AuthRepositoryHttp } from '../data/auth.repository.http';
 import type { Session } from '../domain/models/session.model';
 import type { RefreshResult } from '../domain/ports/auth.repository';
+
 import { decodeJwt } from '../../../core/auth/utils/jwt.util';
-import { from, Observable, shareReplay, switchMap, tap } from 'rxjs';
+import { SessionStateService } from '../../../core/state/session-state.service';
+import { WorkdayRepositoryHttp } from '../../chat/infrastructure/http/workday.repository.http';
 
 /**
- * AuthFacade:
- * - Estado de sesión (signals)
- * - login/logout
- * - refreshTokens$ con 1 refresh en vuelo (shareReplay)
+ * ✅ AuthFacade
+ * - Mantiene estado de sesión (signals)
+ * - Login / Logout (local + remoto)
+ * - Refresh tokens con control de concurrencia (1 refresh en vuelo)
  *
- * Nota: almacenamiento de tokens:
- * - Ideal: access en memoria + refresh en cookie httpOnly (si backend lo soporta).
- * - Como RN usa refreshToken en storage, aquí replicamos mínimo con localStorage.
- *   (Te dejo listo para migrar a cookie si el backend lo permite).
+ * Nota:
+ * - Guardamos sesión en localStorage para mantener compatibilidad con RN/Storage.
+ * - A futuro, si el backend soporta refresh cookie httpOnly, se puede migrar.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthFacade {
@@ -24,7 +27,11 @@ export class AuthFacade {
   // Control de refresh en vuelo
   private refreshInFlight$: Observable<RefreshResult> | null = null;
 
-  constructor(private readonly repo: AuthRepositoryHttp) {
+  constructor(
+    private readonly repo: AuthRepositoryHttp,
+    private readonly sessionState: SessionStateService,
+    private readonly workdayRepo: WorkdayRepositoryHttp,
+  ) {
     this.bootstrapFromStorage();
   }
 
@@ -53,9 +60,50 @@ export class AuthFacade {
     this.persistSession(session);
   }
 
+  /**
+   * ✅ Logout LOCAL (rápido y seguro)
+   * - Se usa desde interceptors (401) para cortar sesión sin depender del backend.
+   */
   logout(): void {
     this.sessionSig.set(null);
     localStorage.removeItem('corpchat.session');
+  }
+
+  /**
+   * ✅ Logout COMPLETO (manual por usuario)
+   * Requisitos del negocio:
+   * - Llamar POST /auth/logout (revoca refresh token en BD)
+   * - Marcar estado laboral como "desconectado" (POST /workday/end)
+   * - Limpiar estado en memoria del Front (signals)
+   * - Dejar lista la app para iniciar una nueva sesión "desde cero"
+   *
+   * Importante:
+   * - La secuencia primero llama al backend (mientras tenemos token),
+   *   luego limpia localStorage y estado en memoria.
+   * - Si el backend falla, igual hacemos limpieza local (fail-safe).
+   */
+  async logoutFull(): Promise<void> {
+    const current = this.sessionSig();
+
+    try {
+      // 1) Intentar marcar desconexión (estado laboral ENDED)
+      //    - Si el usuario no inició jornada, el backend podría responder error.
+      //    - Por eso es best-effort.
+      if (current?.accessToken) {
+        await firstValueFrom(this.workdayRepo.end());
+      }
+
+      // 2) Intentar logout backend (revoca refresh token)
+      if (current?.accessToken) {
+        await this.repo.logout();
+      }
+    } catch {
+      // Best-effort: no bloqueamos el logout si el backend falla.
+    } finally {
+      // 3) Limpieza local + reseteo de estados en memoria
+      this.logout();
+      this.sessionState.clearAll();
+    }
   }
 
   /**

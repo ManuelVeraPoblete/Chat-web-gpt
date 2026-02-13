@@ -17,6 +17,10 @@ import { environment } from '../../../../../../environments/environment';
 // ✅ Barra superior corporativa
 import { TopAppBarComponent } from '../../../../../shared/ui/top-app-bar/top-app-bar.component';
 
+// ✅ Logout Full + socket disconnect
+import { AuthFacade } from '../../../../auth/application/auth.facade';
+import { SocketIoService } from '../../../../../core/realtime/socket-io.service';
+
 /**
  * ✅ ChatShellPage
  * - Contenedor UI del dashboard 3 columnas
@@ -51,6 +55,9 @@ export class ChatShellPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly snack = inject(MatSnackBar);
 
+  private readonly auth = inject(AuthFacade);
+  private readonly socket = inject(SocketIoService);
+
   readonly vm = inject(ChatShellFacade);
 
   currentPeerId = '';
@@ -76,6 +83,24 @@ export class ChatShellPage implements OnInit {
     if (id) {
       this.currentPeerId = id;
       window.setTimeout(() => this.liveChatPanel?.focusInput(), 120);
+    }
+  }
+
+  /**
+   * ✅ Logout desde TopAppBar
+   * - Marca desconexión (workday/end) + revoca refresh token (auth/logout)
+   * - Limpia estado local y señales
+   * - Cierra Socket.IO
+   * - Redirige a /login
+   */
+  async logout(): Promise<void> {
+    try {
+      await this.auth.logoutFull();
+    } catch {
+      // fail-safe: aunque falle el backend, igual salimos
+    } finally {
+      this.socket.disconnect();
+      await this.router.navigateByUrl('/login');
     }
   }
 

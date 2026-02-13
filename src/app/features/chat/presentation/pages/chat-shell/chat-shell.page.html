@@ -1,9 +1,11 @@
 <!-- ✅ Barra superior corporativa -->
-<cc-top-app-bar [appName]="'CorpChat'"></cc-top-app-bar>
+<cc-top-app-bar
+  [appName]="'CorpChat'"
+  [showLogout]="true"
+  (logoutClicked)="logout()"
+></cc-top-app-bar>
 
 <main class="page-content">
-  
-
   <div class="dashboard">
     <!-- Columna izquierda -->
     <cc-users-sidebar
