@@ -1,11 +1,14 @@
 /* src/app/features/chat/presentation/components/live-chat-panel/live-chat-panel.component.scss */
 
+/* ===============================
+   Panel base
+================================= */
 .panel {
   height: 100%;
   min-height: 0;
-  border-radius: 14px;
 
-  border: 2px solid #000; /* ✅ marco negro */
+  border-radius: 16px;
+  border: 2px solid #000;
 
   display: flex;
   flex-direction: column;
@@ -15,41 +18,46 @@
   backdrop-filter: blur(4px);
 }
 
+/* ===============================
+   Header
+================================= */
 .header {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 12px 8px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
 
   background: rgba(255, 255, 255, 0.92);
+}
 
-  .h1 {
-    font-weight: 900;
-    color: #0b2a55;
-    font-size: 16px;
-  }
+.h1 {
+  font-weight: 900;
+  color: #0b2a55;
+  font-size: 18px;
+}
 
-  .h2 {
-    color: #64748b;
-    font-weight: 700;
-    font-size: 12px;
-    margin-top: 2px;
-  }
+.h2 {
+  color: #64748b;
+  font-weight: 700;
+  font-size: 12px;
 }
 
 .actions {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
+/* ===============================
+   Área mensajes
+================================= */
 .messages {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 12px;
+  padding: 14px;
 
   background-image:
     linear-gradient(
@@ -63,37 +71,68 @@
   background-repeat: no-repeat;
 }
 
-.composer {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 10px;
-  padding: 12px;
-  border-top: 1px solid rgba(148, 163, 184, 0.25);
-  background: rgba(255, 255, 255, 0.95);
-}
-
+/* ===============================
+   Burbuja mensajes
+================================= */
 .row {
   display: flex;
-  margin: 8px 0;
+  margin-bottom: 10px;
 }
 
 .bubble {
-  max-width: 72%;
+  max-width: 78%;
   padding: 10px 12px;
-  border-radius: 16px;
+  border-radius: 14px;
+
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
 
-.mine {
-  margin-left: auto;
-  background: #1ea97c;
-  color: #fff;
-}
-
-.other {
-  margin-right: auto;
   background: #eef2f7;
   color: #0f172a;
+
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.bubble.mine {
+  margin-left: auto;
+  background: #1ea97c;
+  color: #ffffff;
+}
+
+/* ===============================
+   Composer (INPUT + botón)
+   👉 Igual que IA
+================================= */
+.composer {
+  flex: 0 0 auto;
+
+  display: flex;
+  gap: 10px;
+
+  padding: 14px;
+
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* INPUT — estilo profesional unificado */
+.input {
+  flex: 1;
+
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 12px;
+
+  padding: 10px 12px;
+
+  outline: none;
+
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Focus elegante */
+.input:focus {
+  border-color: rgba(11, 42, 85, 0.35);
+  box-shadow: 0 0 0 4px rgba(11, 42, 85, 0.08);
 }
